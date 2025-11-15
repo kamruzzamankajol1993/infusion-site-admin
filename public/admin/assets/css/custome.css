@@ -1,0 +1,241 @@
+ /* --- Custom Form & Card Styling --- */
+    :root {
+        --form-border-color-light: #8fbca9; /* Light green, from #175A3A */
+        --form-border-color-focus: #175A3A; /* Main green */
+        --form-focus-shadow: rgba(23, 90, 58, 0.25);
+        --instruction-color: #dc3545; /* Red for instructions */
+        --label-color: #333; /* Darker color for labels */
+    }
+
+    /* 1. Beautify Labels */
+    .form-label {
+        font-weight: 500 !important;
+        color: var(--label-color);
+        margin-bottom: 0.3rem !important;
+    }
+
+    /* 2. Style Form Elements (Input, Textarea, Select) */
+    .form-control,
+    .form-select {
+        border-color: var(--form-border-color-light) !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--form-border-color-focus) !important;
+        box-shadow: 0 0 0 0.25rem var(--form-focus-shadow) !important;
+        outline: 0;
+    }
+
+    /* 3. Style Select2 */
+    .select2-container--default .select2-selection--single {
+        border-color: var(--form-border-color-light) !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: var(--form-border-color-focus) !important;
+        box-shadow: 0 0 0 0.25rem var(--form-focus-shadow) !important;
+    }
+
+    /* 4. Style Summernote (Textarea) */
+    .note-editor.note-frame {
+        border-color: var(--form-border-color-light) !important;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    /* Override focus for invalid summernote */
+    .note-editor.note-frame.is-invalid,
+    .note-editor.note-frame.is-invalid:focus {
+         border-color: var(--danger-color, #dc3545) !important;
+         box-shadow: none !important;
+    }
+
+    .note-editor.note-frame:focus,
+    .note-editor.note-frame.note-focused {
+        border-color: var(--form-border-color-focus) !important;
+        box-shadow: 0 0 0 0.25rem var(--form-focus-shadow) !important;
+    }
+
+    /* 5. Style Card Borders */
+    .card {
+        border-color: var(--form-border-color-light) !important;
+    }
+
+    /* 6. Style Instructions / Helper Text */
+    .form-text.text-muted {
+        color: var(--instruction-color) !important;
+    }
+    /* --- End Custom Styling --- */
+         /* --- Font & Layout Adjustments --- */
+    .main-content {
+        font-size: 0.9rem; /* Reduced base font size */
+    }
+    .main-content h2 { font-size: 1.6rem; }
+    .main-content h5 { font-size: 1.1rem; }
+
+    /* Forms & Buttons */
+    .form-control, .form-select, .btn {
+        font-size: 0.875rem; /* Consistent font size for form elements */
+    }
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+    }
+    /* Cards */
+    .card-body, .card-header, .card-footer {
+        padding: 1rem;
+    }
+
+    /* Tables */
+    .table {
+        font-size: 0.875rem;
+    }
+    .table th, .table td {
+        padding: 0.6rem 0.5rem; /* Reduce padding for a tighter look */
+        vertical-align: middle;
+    }
+    .pagination {
+        font-size: 0.875rem;
+    }
+
+        .btn-custom-sm {
+                       
+  font-size: 0.875rem;              /* Same as Bootstrap's .btn-sm */
+  padding: 0.25rem 0.5rem;          /* Smaller padding */
+  border: none;                     /* Remove default border */
+  border-radius: 0.2rem;            /* Slightly rounded corners */
+  line-height: 1.5;                 /* Consistent text alignment */
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-custom-sm:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);  /* Shadow on hover */
+}
+
+
+        .alertify .ajs-dialog {
+            top: 50%;
+            transform: translateY(-50%);
+            margin: auto;
+        }
+
+
+        .ajs-header{
+
+            color:rgb(255, 28, 28) !important;
+            font-weight:bold !important;
+            font-size:25px !important;
+            text-align: center !important;
+            font-style: italic;
+
+        }
+
+        .ajs-content{
+            color:#35452e !important;
+            font-weight:bold !important;
+            font-size:15px !important;
+
+        }
+
+        .ajs-ok{
+            background-color:#35452e !important;
+            color:white !important;
+        }
+
+        .ajs-cancel{
+            background-color:rgb(255, 28, 28) !important;
+            color:white !important;
+        }
+        
+      
+
+.swal2-confirm{
+
+    margin-left: 20px;
+}
+
+#ajax-loaderOne
+{
+  background: rgba( 255, 255, 255, 0.8 );
+  display: none;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  z-index: 9999;
+}
+
+#ajax-loaderOne img
+{
+  left: 50%;
+  margin-left: -32px;
+  margin-top: -32px;
+  position: absolute;
+  top: 50%;
+}
+.dt-column-order{
+    display: none;
+}
+       
+        th.sortable {
+            cursor: pointer;
+        }
+        th.sortable:hover {
+            background-color: #f8f9fa;
+        }
+  
+#pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    list-style: none;
+    padding-left: 0;
+    margin-top: 1rem;
+}
+
+.page-item {
+    display: inline-block;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px !important;
+    font-size: 15px !important;
+    color: #0d6efd;
+    background-color: transparent;
+    border: 1px solid #0d6efd !important;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+/* Disabled button look */
+.page-item.disabled .page-link {
+    color: #aaa;
+    border-color: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
+    padding: 10px;
+    font-size: 15px;
+}
+
+/* Active page button */
+.page-item.active .page-link {
+    background-color: #0d6efd !important;
+    color: white !important;
+    pointer-events: none;
+    padding: 10px;
+    font-size: 15px;
+}

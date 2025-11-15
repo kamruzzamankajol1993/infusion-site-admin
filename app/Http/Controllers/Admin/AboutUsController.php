@@ -1,0 +1,128 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AboutUs;
+use App\Traits\ImageUploadTrait; // Import the trait
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File; // For deleting file
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Exception;
+use Illuminate\Support\Facades\DB;
+
+
+class AboutUsController extends Controller
+{
+    use ImageUploadTrait; // Use the trait
+
+    /**
+     * Display the About Us management page.
+     * Fetches the first record or initializes an empty one for the form.
+     */
+    public function index(): View
+    {
+        // Get the first record, or a new empty instance if none exists
+        $aboutUs = AboutUs::firstOrNew([]);
+        return view('admin.about_us.index', compact('aboutUs'));
+    }
+
+    /**
+     * Store the newly created About Us content.
+     * Since there should only be one record, this usually runs only once.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        // Prevent creating more than one record
+        if (AboutUs::count() > 0) {
+            return redirect()->route('aboutUs.index')->with('error', 'About Us content already exists. Please edit the existing content.');
+        }
+
+        $validatedData = $request->validate([
+            'mission_title' => 'required|string|max:255',
+            'mission_description' => 'required|string',
+            'vision_title' => 'required|string|max:255',
+            'vision_description' => 'required|string',
+            'objectives_title' => 'required|string|max:255',
+            'objectives_description' => 'required|string',
+            'brief_description' => 'required|string',
+            'organogram_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:1024', // Example max 1MB
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $aboutData = $validatedData;
+
+            // Handle image upload using the trait
+            // Create a temporary model instance (won't be saved)
+             $tempModel = new AboutUs();
+            $imagePath = $this->handleImageUpload($request, $tempModel, 'organogram_image', 'about_us', 1280, 800);
+            if ($imagePath) {
+                $aboutData['organogram_image'] = $imagePath;
+            } else {
+                throw new Exception("Organogram image upload failed or missing.");
+            }
+
+            AboutUs::create($aboutData);
+            DB::commit();
+
+            Log::info('About Us content created successfully.');
+            return redirect()->route('aboutUs.index')->with('success', 'About Us content saved successfully.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to create About Us content: ' . $e->getMessage());
+            return redirect()->back()->withInput()->withErrors($e instanceof \Illuminate\Validation\ValidationException ? $e->errors() : ['error' => 'Failed to save content. Please check logs.']);
+        }
+    }
+
+
+    /**
+     * Update the existing About Us content.
+     */
+    public function update(Request $request, AboutUs $aboutUs): RedirectResponse
+    {
+        $validatedData = $request->validate([
+            'mission_title' => 'required|string|max:255',
+            'mission_description' => 'required|string',
+            'vision_title' => 'required|string|max:255',
+            'vision_description' => 'required|string',
+            'objectives_title' => 'required|string|max:255',
+            'objectives_description' => 'required|string',
+            'brief_description' => 'required|string',
+            'organogram_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024', // Nullable on update
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $aboutData = $validatedData;
+
+            // Handle image update using the trait
+            $imagePath = $this->handleImageUpdate($request, $aboutUs, 'organogram_image', 'about_us', 1280, 800);
+            $aboutData['organogram_image'] = $imagePath; // Trait returns old path if no new image
+
+            $aboutUs->update($aboutData);
+            DB::commit();
+
+            Log::info('About Us content updated successfully.', ['id' => $aboutUs->id]);
+            return redirect()->route('aboutUs.index')->with('success', 'About Us content updated successfully.');
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update About Us content ID ' . $aboutUs->id . ': ' . $e->getMessage());
+             return redirect()->back()->withInput()->withErrors($e instanceof \Illuminate\Validation\ValidationException ? $e->errors() : ['error' => 'Failed to update content. Please check logs.']);
+        }
+    }
+
+    // Note: create(), show(), edit(), destroy() methods from the resource controller
+    // are not strictly necessary here as we manage a single record via index().
+    // You can remove them or leave them empty if generated by --resource.
+    public function create() { return redirect()->route('aboutUs.index'); }
+    public function show(AboutUs $aboutUs) { return redirect()->route('aboutUs.index'); }
+    public function edit(AboutUs $aboutUs) { return redirect()->route('aboutUs.index'); }
+    // Destroy might be needed if you want to allow deleting the content entirely
+    // public function destroy(AboutUs $aboutUs) { /* ... */ }
+
+}

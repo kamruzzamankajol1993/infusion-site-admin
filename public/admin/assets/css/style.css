@@ -1,0 +1,317 @@
+:root {
+  --main-bg-color: #f8f9fa; /* Light grey background */
+  --primary-color: #03396C;  /* Dark green from the website */
+  --secondary-color: #e9f5f0; /* Very light green for accents */
+  --primary-text-color: #03396C;
+  --second-text-color: #adb5bd; /* Grey for inactive sidebar links */
+  --success-color: #1cc88a;
+  --info-color: #36b9cc;
+  --warning-color: #f6c23e;
+  --danger-color:#F51825;
+}
+
+body {
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  background-color: var(--main-bg-color);
+  font-family: 'Poppins', sans-serif;
+}
+
+#wrapper {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* --- NEW REFRESHED DARK SIDEBAR STYLES --- */
+#sidebar-wrapper {
+  min-height: 100vh;
+  width: 15rem;
+  margin-left: -15rem;
+  transition: margin 0.25s ease-out;
+  background-color: var(--primary-color); /* Kept dark green background */
+  flex-shrink: 0;
+  
+  /* --- IMPORTANT: Structural Fix for Scrolling --- */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Hide any overflow from the wrapper */
+  /* --- End Structural Fix --- */
+}
+
+/* Sidebar Header */
+#sidebar-wrapper .sidebar-heading {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  font-size: 1.2rem;
+  color: #ffffff; /* White text */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle separator */
+  flex-shrink: 0; /* Header should not shrink */
+}
+
+#sidebar-wrapper .sidebar-heading img {
+    height: 40px; 
+    margin-right: 10px;
+}
+
+/* Scrollable Link List */
+#sidebar-wrapper .list-group {
+  /* width: 15rem; */
+  padding: 0.75rem; /* Add padding around the whole list */
+  
+  /* --- IMPORTANT: Structural Fix for Scrolling --- */
+  overflow-y: auto; /* This makes the list scroll */
+  flex-grow: 1;   /* This makes the list fill the remaining space */
+  /* --- End Structural Fix --- */
+}
+
+/* Custom scrollbar for sidebar list */
+#sidebar-wrapper .list-group::-webkit-scrollbar {
+    width: 6px;
+}
+#sidebar-wrapper .list-group::-webkit-scrollbar-track {
+    background: transparent;
+}
+#sidebar-wrapper .list-group::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+#sidebar-wrapper .list-group::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Sidebar Title (e.g., "FRONTEND") */
+.sidebar-title { 
+    padding: .75rem 0.5rem; 
+    font-size: .75rem; 
+    font-weight: 700; 
+    color: rgba(255, 255, 255, 0.4); /* Dimmed white text */
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+}
+
+/* Default link styling */
+#sidebar-wrapper .list-group-item {
+  border: none;
+  padding: 0.85rem 1rem;
+  color: rgba(255, 255, 255, 0.7); /* Light text */
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 0.1rem; 
+  border-radius: 0.375rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  /* NEW: Added transparent border for active state */
+  border-left: 4px solid transparent; 
+}
+
+#sidebar-wrapper .list-group-item i {
+    font-size: 1rem;
+    margin-right: 0.75rem;
+    width: 1.25rem;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover state */
+#sidebar-wrapper .list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.05); /* Subtle hover */
+  color: #ffffff;
+}
+
+/* Active state */
+#sidebar-wrapper .list-group-item.active {
+  background-color: rgba(255, 255, 255, 0.1) !important; /* Light "pill" background */
+  color: #ffffff; /* Bright white text */
+  font-weight: 600;
+  border-left: 4px solid #ffffff; /* White active border */
+}
+
+#sidebar-wrapper .list-group-item.active i {
+    transform: scale(1.1); /* Slightly larger icon */
+}
+
+
+/* Submenu container */
+.sidebar-submenu {
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker dropdown */
+    position: relative;
+    padding-left: 1rem; 
+    
+    /* --- FIX START --- */
+    margin-top: 0; /* Was 0.25rem */
+    margin-bottom: 0; /* Was 0.5rem */
+    /* --- FIX END --- */
+
+    border-radius: 0.375rem;
+    
+    /* --- FIX START --- */
+    /* Added old margins to padding for smooth animation */
+    padding-top: 0.75rem !important; /* Was 0.5rem, added 0.25 */
+    padding-bottom: 1rem !important; /* Was 0.5rem, added 0.5 */
+    /* --- FIX END --- */
+}
+/* Ensures the Bootstrap collapse animation is defined */
+.collapsing {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
+/* Remove the old hierarchical line */
+.sidebar-submenu::before {
+    display: none;
+}
+
+.sidebar-submenu .list-group-item {
+    padding: .6rem 1rem;
+    margin-bottom: 0.1rem;
+    background-color: transparent !important;
+    font-size: 0.875rem; /* Slightly smaller text */
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    border-left: none; /* No border for submenu items */
+}
+
+/* Submenu item hover/active */
+.sidebar-submenu .list-group-item.active,
+.sidebar-submenu .list-group-item:hover {
+    color: #ffffff;
+    font-weight: 500;
+    background-color: transparent !important;
+}
+
+.sidebar-submenu .list-group-item.active {
+    font-weight: 600;
+}
+/* --- END OF NEW SIDEBAR STYLES --- */
+
+
+#page-content-wrapper {
+  flex-grow: 1;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+#page-content-wrapper .navbar {
+    position: sticky; /* Make header fixed */
+    top: 0;
+    z-index: 1020;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+#menu-toggle {
+  cursor: pointer;
+}
+
+.list-group-item:focus {
+    outline: none !important;
+    box-shadow: none;
+}
+
+a[data-bs-toggle="collapse"] .bi-chevron-down {
+    transition: transform 0.2s ease-in-out;
+}
+a[data-bs-toggle="collapse"][aria-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Content Area Styles */
+.primary-text {
+  color: var(--primary-text-color);
+}
+
+.second-text {
+  color: var(--second-text-color);
+}
+
+.secondary-bg {
+    background-color: var(--secondary-color);
+}
+
+.rounded-full {
+  border-radius: 100%;
+}
+
+.table-dark {
+    background-color: var(--primary-color) !important;
+    --bs-table-bg: var(--primary-color);
+}
+
+/* New Summary Card Styles */
+.card-custom {
+    transition: all 0.2s ease-in-out;
+    border: 1px solid #e3e6f0;
+}
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.border-left-primary { border-left: 0.25rem solid var(--primary-color) !important; }
+.border-left-success { border-left: 0.25rem solid var(--success-color) !important; }
+.border-left-info { border-left: 0.25rem solid var(--info-color) !important; }
+.border-left-warning { border-left: 0.25rem solid var(--warning-color) !important; }
+
+.text-xs { font-size: .8rem; }
+.text-gray-300 { color: #dddfeb !important; }
+
+/* Calendar Styles */
+.calendar-date {
+    width: 50px;
+    height: 50px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+/* --- NEW: Sidebar Overlay for mobile --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1029; /* Just below the sidebar's z-index */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease-out, visibility 0s 0.25s; /* Delay hiding */
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s ease-out;
+}
+
+#sidebar-close-button:focus {
+    box-shadow: none;
+}
+/* --- END NEW --- */
+
+
+/* Responsive Styles */
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+    #sidebar-wrapper {
+        position: fixed;
+        z-index: 1030;
+        height: 100%;
+    }
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+}
+
+.breadcrumb-item a { text-decoration: none; color: var(--primary-color); }
+.btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }

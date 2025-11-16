@@ -94,8 +94,8 @@ class ClientController extends Controller
 
             // --- Determine dimensions based on shape ---
             $shape = $request->input('image_shape');
-            $width = ($shape === 'square') ? 84 : 142;
-            $height = ($shape === 'square') ? 80 : 72;
+            $width = ($shape === 'square') ? 84 : 200;
+            $height = ($shape === 'square') ? 80 : 80;
 
             // Handle logo upload
             $tempModel = new Client();
@@ -171,8 +171,8 @@ class ClientController extends Controller
             $clientData = $request->only('name', 'image_shape');
 
             $shape = $request->input('image_shape');
-            $width = ($shape === 'square') ? 84 : 142;
-            $height = ($shape === 'square') ? 80 : 72;
+            $width = ($shape === 'square') ? 84 : 200;
+            $height = ($shape === 'square') ? 80 : 80;
 
             // --- !! MODIFIED LOGIC !! ---
             // Only call the trait if a new file is *actually* uploaded.

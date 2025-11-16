@@ -5,15 +5,12 @@ About Us Content | {{ $ins_name }}
 @endsection
 
 @section('css')
-{{-- Include Summernote CSS if you use it for descriptions --}}
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
-    /* Professional Image Preview Box */
+    /* Base Image Preview Box */
     .image-preview-box {
         position: relative;
         width: 100%;
-        /* Maintain aspect ratio 1280:800 -> 16:10 */
-        padding-top: 62.5%; /* 800 / 1280 * 100% */
         border: 2px dashed #ced4da;
         border-radius: .375rem;
         display: flex;
@@ -30,7 +27,7 @@ About Us Content | {{ $ins_name }}
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: contain; /* Use contain to see the whole image */
+        object-fit: contain;
     }
     .image-preview-box .placeholder-text {
         position: absolute;
@@ -41,6 +38,22 @@ About Us Content | {{ $ins_name }}
         padding: 1rem;
         text-align: center;
     }
+    
+    /* 600x400 Aspect Ratio (600:400 -> 3:2 -> 66.66%) */
+    .preview-600x400 {
+        padding-top: 66.66%; 
+    }
+    
+    /* 400x500 Aspect Ratio (400:500 -> 4:5 -> 125%) */
+    /* We'll cap the width to make it look good on the form */
+    .preview-400x500 {
+        max-width: 400px; /* Max width */
+        padding-top: 125%; /* 500 / 400 * 100% */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Summernote Validation */
     .note-editor.note-frame.is-invalid {
         border-color: var(--danger-color, #F51825) !important;
     }
@@ -65,8 +78,6 @@ About Us Content | {{ $ins_name }}
 
     @include('flash_message')
 
-    {{-- Determine which form to show. Assumes you pass an $aboutUs variable from the controller. --}}
-    {{-- If $aboutUs exists, show Edit form; otherwise, show Create form. --}}
     @php
         $hasData = isset($aboutUs) && $aboutUs->id; // Check if data exists
     @endphp
@@ -74,94 +85,129 @@ About Us Content | {{ $ins_name }}
     {{-- EDIT FORM CARD --}}
     @if($hasData)
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white">
             <h5 class="card-title mb-0">Edit About Us Content </h5>
-
-            {{-- Optional: Add a link back or other actions --}}
         </div>
         <div class="card-body">
             <form action="{{ route('aboutUs.update', $aboutUs->id) }}" method="POST" enctype="multipart/form-data" novalidate id="editForm">
                 @csrf
                 @method('PUT')
 
-                {{-- Mission Section --}}
-                <h6 class="mt-2 text-primary">Mission</h6>
+                {{-- Our Story Section --}}
+                <h6 class="mt-2 text-primary">Our Story</h6>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <label for="edit_mission_title" class="form-label">Mission Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_mission_title" name="mission_title" value="{{ old('mission_title', $aboutUs->mission_title ?? '') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="edit_mission_description" class="form-label">Mission Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="edit_mission_description" name="mission_description" required>{{ old('mission_description', $aboutUs->mission_description ?? '') }}</textarea>
-                        <div id="edit_mission_description-error" class="form-error"></div>
-                                      <small class="form-text text-muted">To show text in list form, select the entire text and click the unorder or order button.</small>
+                        <label for="edit_our_story" class="form-label">Our Story <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="edit_our_story" name="our_story" required>{{ old('our_story', $aboutUs->our_story ?? '') }}</textarea>
+                        <div id="edit_our_story-error" class="form-error"></div>
                     </div>
                 </div>
                 <hr>
 
-                {{-- Vision Section --}}
-                <h6 class="mt-3 text-primary">Vision</h6>
+                {{-- Team Image Section --}}
+                <h6 class="mt-3 text-primary">Team Image</h6>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <label for="edit_vision_title" class="form-label">Vision Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_vision_title" name="vision_title" value="{{ old('vision_title', $aboutUs->vision_title ?? '') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="edit_vision_description" class="form-label">Vision Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="edit_vision_description" name="vision_description" required>{{ old('vision_description', $aboutUs->vision_description ?? '') }}</textarea>
-                        <div id="edit_vision_description-error" class="form-error"></div>
-                                      <small class="form-text text-muted">To show text in list form, select the entire text and click the unorder or order button.</small>
-                    </div>
-                </div>
-                <hr>
-
-                {{-- Objectives Section --}}
-                <h6 class="mt-3 text-primary">Objectives</h6>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="edit_objectives_title" class="form-label">Objectives Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit_objectives_title" name="objectives_title" value="{{ old('objectives_title', $aboutUs->objectives_title ?? '') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="edit_objectives_description" class="form-label">Objectives Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="edit_objectives_description" name="objectives_description" required>{{ old('objectives_description', $aboutUs->objectives_description ?? '') }}</textarea>
-                        <div id="edit_objectives_description-error" class="form-error"></div>
-                                      <small class="form-text text-muted">To show text in list form, select the entire text and click the unorder or order button.</small>
-                    </div>
-                </div>
-                <hr>
-
-                {{-- Brief Description --}}
-                <h6 class="mt-3 text-primary">Brief Description</h6>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                         <label for="edit_brief_description" class="form-label">Brief Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="edit_brief_description" name="brief_description" required>{{ old('brief_description', $aboutUs->brief_description ?? '') }}</textarea>
-                        <div id="edit_brief_description-error" class="form-error"></div>
-                                      <small class="form-text text-muted">To show text in list form, select the entire text and click the unorder or order button.</small>
-                    </div>
-                </div>
-                <hr>
-
-                 {{-- IIFC Organogram --}}
-                <h6 class="mt-3 text-primary">IIFC Organogram</h6>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="edit_organogram_image" class="form-label">Upload Organogram Image</label>
-                        <input type="file" class="form-control" id="edit_organogram_image" name="organogram_image" accept="image/*">
-                        <small class="form-text text-muted">Recommended size: 1280px (Width) x 800px (Height). Leave blank to keep current image.</small>
+                        <label for="edit_team_image" class="form-label">Upload Team Image</label>
+                        <input type="file" class="form-control" id="edit_team_image" name="team_image" accept="image/*">
+                        <small class="form-text text-muted">Recommended size: 600px (Width) x 400px (Height). Leave blank to keep current image.</small>
                     </div>
                      <div class="col-md-12">
-                         <div class="image-preview-box mt-2">
-                             @if($aboutUs->organogram_image)
-                                <img id="editImagePreview" src="{{ asset($aboutUs->organogram_image) }}" alt="Current Organogram">
-                                <span class="placeholder-text" style="display:none;">Organogram Preview<br>(1280 x 800)</span>
+                         <div class="image-preview-box preview-600x400 mt-2">
+                             @if($aboutUs->team_image)
+                                <img id="editTeamImagePreview" src="{{ asset($aboutUs->team_image) }}" alt="Current Team Image">
+                                <span class="placeholder-text" style="display:none;">Team Image Preview<br>(600 x 400)</span>
                              @else
-                                <img id="editImagePreview" src="#" alt="Organogram Preview" style="display:none;">
-                                <span class="placeholder-text">Organogram Preview<br>(1280 x 800)</span>
+                                <img id="editTeamImagePreview" src="#" alt="Team Image Preview" style="display:none;">
+                                <span class="placeholder-text">Team Image Preview<br>(600 x 400)</span>
                              @endif
                          </div>
+                    </div>
+                </div>
+                <hr>
+
+                {{-- Mission & Vision Section --}}
+                <h6 class="mt-3 text-primary">Mission & Vision</h6>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="edit_mission" class="form-label">Mission <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="edit_mission" name="mission" required>{{ old('mission', $aboutUs->mission ?? '') }}</textarea>
+                        <div id="edit_mission-error" class="form-error"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="edit_vision" class="form-label">Vision <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="edit_vision" name="vision" required>{{ old('vision', $aboutUs->vision ?? '') }}</textarea>
+                        <div id="edit_vision-error" class="form-error"></div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                     <div class="col-md-12">
+                        <label for="edit_mission_vision_image" class="form-label">Upload Mission/Vision Image</label>
+                        <input type="file" class="form-control" id="edit_mission_vision_image" name="mission_vision_image" accept="image/*">
+                        <small class="form-text text-muted">Recommended size: 600px (Width) x 400px (Height). Leave blank to keep current image.</small>
+                    </div>
+                     <div class="col-md-12">
+                         <div class="image-preview-box preview-600x400 mt-2">
+                             @if($aboutUs->mission_vision_image)
+                                <img id="editMvImagePreview" src="{{ asset($aboutUs->mission_vision_image) }}" alt="Current M/V Image">
+                                <span class="placeholder-text" style="display:none;">Mission/Vision Image Preview<br>(600 x 400)</span>
+                             @else
+                                <img id="editMvImagePreview" src="#" alt="M/V Image Preview" style="display:none;">
+                                <span class="placeholder-text">Mission/Vision Image Preview<br>(600 x 400)</span>
+                             @endif
+                         </div>
+                    </div>
+                </div>
+                <hr>
+
+                {{-- Founder Section --}}
+                <h6 class="mt-3 text-primary">Founder's Message</h6>
+                <div class="row mb-3">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="edit_founder_name" class="form-label">Founder Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_founder_name" name="founder_name" value="{{ old('founder_name', $aboutUs->founder_name ?? '') }}" required>
+                        </div>
+                        <div class="mb-3">
+                             <label for="edit_founder_designation" class="form-label">Founder Designation <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="edit_founder_designation" name="founder_designation" value="{{ old('founder_designation', $aboutUs->founder_designation ?? '') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_founder_quote" class="form-label">Founder Quote <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="edit_founder_quote" name="founder_quote" rows="8" required>{{ old('founder_quote', $aboutUs->founder_quote ?? '') }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="edit_founder_image" class="form-label">Upload Founder Image</label>
+                        <input type="file" class="form-control" id="edit_founder_image" name="founder_image" accept="image/*">
+                        <small class="form-text text-muted">Recommended size: 400px (Width) x 500px (Height). Leave blank to keep current.</small>
+                        <div class="image-preview-box preview-400x500 mt-2">
+                             @if($aboutUs->founder_image)
+                                <img id="editFounderImagePreview" src="{{ asset($aboutUs->founder_image) }}" alt="Current Founder Image">
+                                <span class="placeholder-text" style="display:none;">Founder Image Preview<br>(400 x 500)</span>
+                             @else
+                                <img id="editFounderImagePreview" src="#" alt="Founder Image Preview" style="display:none;">
+                                <span class="placeholder-text">Founder Image Preview<br>(400 x 500)</span>
+                             @endif
+                         </div>
+                    </div>
+                </div>
+                <hr>
+
+                {{-- Legal Info Section --}}
+                <h6 class="mt-3 text-primary">Legal Information</h6>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="edit_trade_license" class="form-label">Trade License No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_trade_license" name="trade_license" value="{{ old('trade_license', $aboutUs->trade_license ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="edit_bin" class="form-label">BIN No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_bin" name="bin" value="{{ old('bin', $aboutUs->bin ?? '') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="edit_tin" class="form-label">TIN No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit_tin" name="tin" value="{{ old('tin', $aboutUs->tin ?? '') }}" required>
                     </div>
                 </div>
 
@@ -185,77 +231,108 @@ About Us Content | {{ $ins_name }}
              <form action="{{ route('aboutUs.store') }}" method="POST" enctype="multipart/form-data" novalidate id="createForm">
                 @csrf
 
-                 {{-- Mission Section --}}
-                <h6 class="mt-2 text-primary">Mission</h6>
+                {{-- Our Story Section --}}
+                <h6 class="mt-2 text-primary">Our Story</h6>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <label for="create_mission_title" class="form-label">Mission Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="create_mission_title" name="mission_title" value="{{ old('mission_title') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="create_mission_description" class="form-label">Mission Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="create_mission_description" name="mission_description" required>{{ old('mission_description') }}</textarea>
-                        <div id="create_mission_description-error" class="form-error"></div>
+                        <label for="create_our_story" class="form-label">Our Story <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="create_our_story" name="our_story" required>{{ old('our_story') }}</textarea>
+                        <div id="create_our_story-error" class="form-error"></div>
                     </div>
                 </div>
                 <hr>
 
-                {{-- Vision Section --}}
-                <h6 class="mt-3 text-primary">Vision</h6>
+                {{-- Team Image Section --}}
+                <h6 class="mt-3 text-primary">Team Image</h6>
                 <div class="row mb-3">
                     <div class="col-md-12">
-                        <label for="create_vision_title" class="form-label">Vision Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="create_vision_title" name="vision_title" value="{{ old('vision_title') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="create_vision_description" class="form-label">Vision Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="create_vision_description" name="vision_description" required>{{ old('vision_description') }}</textarea>
-                         <div id="create_vision_description-error" class="form-error"></div>
-                    </div>
-                </div>
-                <hr>
-
-                {{-- Objectives Section --}}
-                <h6 class="mt-3 text-primary">Objectives</h6>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="create_objectives_title" class="form-label">Objectives Title <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="create_objectives_title" name="objectives_title" value="{{ old('objectives_title') }}" required>
-                    </div>
-                    <div class="col-md-12 mt-2">
-                        <label for="create_objectives_description" class="form-label">Objectives Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="create_objectives_description" name="objectives_description" required>{{ old('objectives_description') }}</textarea>
-                        <div id="create_objectives_description-error" class="form-error"></div>
-                    </div>
-                </div>
-                <hr>
-
-                {{-- Brief Description --}}
-                <h6 class="mt-3 text-primary">Brief Description</h6>
-                 <div class="row mb-3">
-                    <div class="col-md-12">
-                         <label for="create_brief_description" class="form-label">Brief Description <span class="text-danger">*</span></label>
-                        <textarea class="form-control summernote" id="create_brief_description" name="brief_description" required>{{ old('brief_description') }}</textarea>
-                        <div id="create_brief_description-error" class="form-error"></div>
-                    </div>
-                </div>
-                <hr>
-
-                {{-- IIFC Organogram --}}
-                 <h6 class="mt-3 text-primary">IIFC Organogram</h6>
-                 <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label for="create_organogram_image" class="form-label">Upload Organogram Image <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="create_organogram_image" name="organogram_image" accept="image/*" required>
-                        <small class="form-text text-muted">Recommended size: 1280px (Width) x 800px (Height).</small>
+                        <label for="create_team_image" class="form-label">Upload Team Image <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="create_team_image" name="team_image" accept="image/*" required>
+                        <small class="form-text text-muted">Recommended size: 600px (Width) x 400px (Height).</small>
                     </div>
                      <div class="col-md-12">
-                        <div class="image-preview-box mt-2">
-                             <img id="createImagePreview" src="#" alt="Organogram Preview" style="display:none;">
-                             <span class="placeholder-text">Organogram Preview<br>(1280 x 800)</span>
+                        <div class="image-preview-box preview-600x400 mt-2">
+                             <img id="createTeamImagePreview" src="#" alt="Team Image Preview" style="display:none;">
+                             <span class="placeholder-text">Team Image Preview<br>(600 x 400)</span>
                         </div>
                     </div>
-                 </div>
+                </div>
+                <hr>
+
+                {{-- Mission & Vision Section --}}
+                <h6 class="mt-3 text-primary">Mission & Vision</h6>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="create_mission" class="form-label">Mission <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="create_mission" name="mission" required>{{ old('mission') }}</textarea>
+                        <div id="create_mission-error" class="form-error"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="create_vision" class="form-label">Vision <span class="text-danger">*</span></label>
+                        <textarea class="form-control summernote" id="create_vision" name="vision" required>{{ old('vision') }}</textarea>
+                        <div id="create_vision-error" class="form-error"></div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                     <div class="col-md-12">
+                        <label for="create_mission_vision_image" class="form-label">Upload Mission/Vision Image <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="create_mission_vision_image" name="mission_vision_image" accept="image/*" required>
+                        <small class="form-text text-muted">Recommended size: 600px (Width) x 400px (Height).</small>
+                    </div>
+                     <div class="col-md-12">
+                        <div class="image-preview-box preview-600x400 mt-2">
+                             <img id="createMvImagePreview" src="#" alt="M/V Image Preview" style="display:none;">
+                             <span class="placeholder-text">Mission/Vision Image Preview<br>(600 x 400)</span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                {{-- Founder Section --}}
+                <h6 class="mt-3 text-primary">Founder's Message</h6>
+                <div class="row mb-3">
+                    <div class="col-md-7">
+                        <div class="mb-3">
+                            <label for="create_founder_name" class="form-label">Founder Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="create_founder_name" name="founder_name" value="{{ old('founder_name') }}" required>
+                        </div>
+                        <div class="mb-3">
+                             <label for="create_founder_designation" class="form-label">Founder Designation <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="create_founder_designation" name="founder_designation" value="{{ old('founder_designation') }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create_founder_quote" class="form-label">Founder Quote <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="create_founder_quote" name="founder_quote" rows="8" required>{{ old('founder_quote') }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <label for="create_founder_image" class="form-label">Upload Founder Image <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="create_founder_image" name="founder_image" accept="image/*" required>
+                        <small class="form-text text-muted">Recommended size: 400px (Width) x 500px (Height).</small>
+                        <div class="image-preview-box preview-400x500 mt-2">
+                             <img id="createFounderImagePreview" src="#" alt="Founder Image Preview" style="display:none;">
+                             <span class="placeholder-text">Founder Image Preview<br>(400 x 500)</span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                {{-- Legal Info Section --}}
+                <h6 class="mt-3 text-primary">Legal Information</h6>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="create_trade_license" class="form-label">Trade License No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="create_trade_license" name="trade_license" value="{{ old('trade_license') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="create_bin" class="form-label">BIN No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="create_bin" name="bin" value="{{ old('bin') }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="create_tin" class="form-label">TIN No. <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="create_tin" name="tin" value="{{ old('tin') }}" required>
+                    </div>
+                </div>
 
                 <div class="text-end mt-4">
                     <button type="submit" class="btn btn-primary">Save Content</button>
@@ -269,7 +346,6 @@ About Us Content | {{ $ins_name }}
 @endsection
 
 @section('script')
-{{-- Include Summernote JS if you use it --}}
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>
@@ -279,7 +355,7 @@ About Us Content | {{ $ins_name }}
         function initSummernote(selector) {
              try {
                 $(selector).summernote({
-                    height: 150, // Adjust height as needed
+                    height: 150,
                     toolbar: [
                         ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
                         ['para', ['ul', 'ol', 'paragraph']],
@@ -288,12 +364,10 @@ About Us Content | {{ $ins_name }}
                     ],
                      callbacks: {
                         onChange: function(contents, $editable) {
-                           // Trigger validation on change
                            validateSummernote($(this));
-                           // If using Bootstrap validation, remove invalid state if content exists
                            if (!$(this).summernote('isEmpty')) {
                                $(this).removeClass('is-invalid');
-                               $(this).siblings('.note-editor').removeClass('is-invalid'); // Target the generated editor
+                               $(this).siblings('.note-editor').removeClass('is-invalid');
                                $(this).siblings('.form-error').empty();
                            }
                         }
@@ -304,16 +378,14 @@ About Us Content | {{ $ins_name }}
 
         // Initialize for both forms if they exist
         if ($('#createForm').length) {
-            initSummernote('#create_mission_description');
-            initSummernote('#create_vision_description');
-            initSummernote('#create_objectives_description');
-            initSummernote('#create_brief_description');
+            initSummernote('#create_our_story');
+            initSummernote('#create_mission');
+            initSummernote('#create_vision');
         }
         if ($('#editForm').length) {
-            initSummernote('#edit_mission_description');
-            initSummernote('#edit_vision_description');
-            initSummernote('#edit_objectives_description');
-            initSummernote('#edit_brief_description');
+            initSummernote('#edit_our_story');
+            initSummernote('#edit_mission');
+            initSummernote('#edit_vision');
         }
 
 
@@ -325,48 +397,42 @@ About Us Content | {{ $ins_name }}
                 const placeholder = preview.siblings(placeholderClass);
 
                 if (input.files && input.files[0]) {
-                    // Basic client-side size check (optional but good UX)
-                    const fileSize = input.files[0].size / 1024; // Size in KB
-                    // Add a max size check if needed, e.g., 2MB = 2048KB
-                    // if (fileSize > 2048) {
-                    //     alert('File size exceeds the maximum limit of 2MB.');
-                    //     $(this).val(''); // Clear the input
-                    //     preview.attr('src', '#').hide();
-                    //     placeholder.show();
-                    //     return;
-                    // }
-
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         preview.attr('src', e.target.result);
                         preview.css('display', 'block');
-                        placeholder.css('display', 'none'); // Hide placeholder
+                        placeholder.css('display', 'none');
+Two in-depth classes, a workshop, and a networking event are happening this week.
                     };
                     reader.readAsDataURL(input.files[0]);
                 } else {
-                     // Handle case where user deselects the file (might be needed in edit)
-                     // If it's the edit form, show the original image? Or just the placeholder?
                      preview.attr('src', '#').hide();
                      placeholder.show();
                 }
             });
         }
 
-        // Apply preview logic to both forms
-        handleImagePreview('create_organogram_image', 'createImagePreview', '.placeholder-text');
-        handleImagePreview('edit_organogram_image', 'editImagePreview', '.placeholder-text');
+        // Apply preview logic to all 6 image inputs
+        handleImagePreview('create_team_image', 'createTeamImagePreview', '.placeholder-text');
+        handleImagePreview('edit_team_image', 'editTeamImagePreview', '.placeholder-text');
+        
+        handleImagePreview('create_mission_vision_image', 'createMvImagePreview', '.placeholder-text');
+        handleImagePreview('edit_mission_vision_image', 'editMvImagePreview', '.placeholder-text');
+
+        handleImagePreview('create_founder_image', 'createFounderImagePreview', '.placeholder-text');
+        handleImagePreview('edit_founder_image', 'editFounderImagePreview', '.placeholder-text');
 
 
        // --- Custom Client-Side Validation for Summernote ---
        function validateSummernote($element) {
-           const $editor = $element.siblings('.note-editor'); // Target the editor wrapper
+           const $editor = $element.siblings('.note-editor');
            const $errorDiv = $element.siblings('.form-error');
-           $errorDiv.empty(); // Clear previous error
-           $editor.removeClass('is-invalid'); // Remove error class
+           $errorDiv.empty(); 
+           $editor.removeClass('is-invalid'); 
 
            if ($element.prop('required') && $element.summernote('isEmpty')) {
                $errorDiv.text('This field is required.');
-               $editor.addClass('is-invalid'); // Add error class to the editor frame
+               $editor.addClass('is-invalid'); 
                return false; // Invalid
            }
            return true; // Valid
@@ -389,13 +455,12 @@ About Us Content | {{ $ins_name }}
                 }
             });
 
-            // If form is invalid, prevent submission and trigger Bootstrap styles
             if (!isValid) {
                 e.preventDefault();
                 e.stopPropagation();
             }
 
-            $form.addClass('was-validated'); // Show Bootstrap feedback styles
+            $form.addClass('was-validated'); 
         });
 
     });

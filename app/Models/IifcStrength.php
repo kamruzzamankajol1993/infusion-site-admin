@@ -22,10 +22,12 @@ class IifcStrength extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'ongoing_project',
-        'complete_projects',
-        'countries', // Renamed from 'countrier'
-        'years_in_business',
+        'projects',
+        'products',
+        'experts', // Renamed from 'countrier'
+        'countries',
+        'happy_clients',
+        'yrs_experienced',
     ];
 
     /**
@@ -34,9 +36,11 @@ class IifcStrength extends Model
      * @var array
      */
      protected $casts = [
-        'ongoing_project' => 'integer',
-        'complete_projects' => 'integer',
+        'projects' => 'integer',
+        'products' => 'integer',
+        'experts' => 'integer',
         'countries' => 'integer',
-        'years_in_business' => 'integer',
+        'happy_clients' => 'integer',
+        'yrs_experienced' => 'integer',
     ];
 }

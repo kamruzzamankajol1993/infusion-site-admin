@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('iifc_strengths', function (Blueprint $table) {
             $table->id();
-            $table->integer('ongoing_project')->default(0);
-            $table->integer('complete_projects')->default(0);
+            $table->integer('projects')->default(0);
+            $table->integer('products')->default(0);
+            $table->integer('experts')->default(0);
             $table->integer('countries')->default(0); // Renamed from 'countrier'
-            $table->integer('years_in_business')->default(0);
+            $table->integer('happy_clients')->default(0);
+            $table->integer('yrs_experienced')->default(0);
             $table->timestamps();
         });
     }

@@ -91,7 +91,7 @@ use App\Http\Controllers\Admin\JobApplicantController;
 use App\Http\Controllers\Admin\IifcStrengthController;
 use App\Http\Controllers\Admin\TopHeaderLinkController;
 use App\Http\Controllers\Admin\NavbarSettingController;
-use App\Http\Controllers\Admin\BreadCrumbImageController;
+use App\Http\Controllers\Admin\SolutionController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
@@ -152,6 +152,25 @@ Route::controller(AuthController::class)->group(function () {
     
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
+
+    Route::get('ajax/media', [App\Http\Controllers\Admin\MediaController::class, 'data'])->name('ajax.media.data');
+    Route::post('media/update-order', [App\Http\Controllers\Admin\MediaController::class, 'updateOrder'])->name('media.updateOrder');
+    Route::resource('media', App\Http\Controllers\Admin\MediaController::class);
+
+    Route::get('ajax/why-choose-us', [App\Http\Controllers\Admin\WhyChooseUsController::class, 'data'])->name('ajax.whyChooseUs.data');
+    Route::post('why-choose-us/update-order', [App\Http\Controllers\Admin\WhyChooseUsController::class, 'updateOrder'])->name('whyChooseUs.updateOrder');
+    Route::resource('why-choose-us', App\Http\Controllers\Admin\WhyChooseUsController::class);
+Route::get('ajax/why-us', [App\Http\Controllers\Admin\WhyUsController::class, 'data'])->name('ajax.why-us.data');
+    Route::resource('why-us', App\Http\Controllers\Admin\WhyUsController::class);
+    //new code start
+    Route::resource('solution', SolutionController::class);
+Route::get('ajax-solutions', [SolutionController::class, 'data'])->name('ajax.solution.data');
+    
+Route::get('ajax/teams', [App\Http\Controllers\Admin\TeamController::class, 'data'])->name('ajax.team.data');
+    Route::post('teams/update-order', [App\Http\Controllers\Admin\TeamController::class, 'updateOrder'])->name('team.updateOrder');
+    Route::resource('team', App\Http\Controllers\Admin\TeamController::class);
+
+// new code end 
 // --- NEW EXPORT ROUTES ---
     Route::get('job-applicants/export/excel', [JobApplicantController::class, 'exportExcel'])->name('jobApplicant.export.excel');
     Route::get('job-applicants/export/pdf', [JobApplicantController::class, 'exportPdf'])->name('jobApplicant.export.pdf');
@@ -186,20 +205,16 @@ Route::post('settings/navbar-menus', [NavbarSettingController::class, 'storeOrUp
     Route::resource('trainingEnrollment', App\Http\Controllers\Admin\TrainingEnrollmentController::class);
     Route::get('ajax-training-enrollments/data', [App\Http\Controllers\Admin\TrainingEnrollmentController::class, 'data'])->name('ajax.trainingEnrollment.data');
 
-    Route::get('single-source-selection', [App\Http\Controllers\Admin\SingleSourceSelectionController::class, 'index'])->name('singleSourceSelection.index');
-    Route::post('single-source-selection', [App\Http\Controllers\Admin\SingleSourceSelectionController::class, 'storeOrUpdate'])->name('singleSourceSelection.storeOrUpdate');
+
     
-    Route::get('tendering', [App\Http\Controllers\Admin\TenderingController::class, 'index'])->name('tendering.index');
-    Route::post('tendering', [App\Http\Controllers\Admin\TenderingController::class, 'storeOrUpdate'])->name('tendering.storeOrUpdate');
+    
 
 
     Route::get('upcoming-tab-image', [App\Http\Controllers\Admin\UpcomingTabImageController::class, 'index'])->name('upcomingTabImage.index');
     Route::post('upcoming-tab-image', [App\Http\Controllers\Admin\UpcomingTabImageController::class, 'storeOrUpdate'])->name('upcomingTabImage.storeOrUpdate');
 
 
-    // Bread Crumb Image Routes
-Route::get('breadcrumb-images', [BreadCrumbImageController::class, 'index'])->name('breadCrumbImage.index');
-Route::post('breadcrumb-images', [BreadCrumbImageController::class, 'storeOrUpdate'])->name('breadCrumbImage.storeOrUpdate');
+
 // Career Routes
     // Using kebab-case for URL/naming convention
     Route::resource('career', CareerController::class)->names('career');

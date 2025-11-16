@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AboutUs extends Model
+class Solution extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,7 @@ class AboutUs extends Model
      *
      * @var string
      */
-    protected $table = 'about_us'; // Explicitly define table name
+    protected $table = 'solutions'; // Explicitly define table name
 
     /**
      * The attributes that are mass assignable.
@@ -22,17 +22,7 @@ class AboutUs extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'our_story',
-        'team_image',
-        'mission',
-        'vision',
-        'mission_vision_image',
-        'founder_quote',
-        'founder_image',
-        'founder_name',
-        'founder_designation',
-        'trade_license',
-        'bin',
-        'tin',
+        'name',
+        'image',
     ];
 }

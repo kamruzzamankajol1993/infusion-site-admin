@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\IifcStrength; // Import the model
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\RedirectResponse; // This is already imported, which is good
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Support\Facades\Cache; // Optional: For caching
@@ -27,7 +27,9 @@ class IifcStrengthController extends Controller
      * Display the IIFC Strength settings page.
      * Fetches the first (and only) record.
      */
-    public function index(): View
+    
+    // *** THIS IS THE CORRECTED LINE ***
+    public function index(): View|RedirectResponse
     {
         try {
             // Find the first record, or fail if table is empty (seed first!)
@@ -48,11 +50,14 @@ class IifcStrengthController extends Controller
      */
     public function update(Request $request, $id): RedirectResponse // id is expected from route
     {
+        // Rules now match the IifcStrength model's fillable fields
         $validatedData = $request->validate([
-            'ongoing_project' => 'required|integer|min:0',
-            'complete_projects' => 'required|integer|min:0',
+            'projects' => 'required|integer|min:0',
+            'products' => 'required|integer|min:0',
+            'experts' => 'required|integer|min:0',
             'countries' => 'required|integer|min:0',
-            'years_in_business' => 'required|integer|min:0',
+            'happy_clients' => 'required|integer|min:0',
+            'yrs_experienced' => 'required|integer|min:0',
         ]);
 
         try {

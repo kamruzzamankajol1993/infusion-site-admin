@@ -77,7 +77,7 @@ class SystemInformationController extends Controller
             // Process image uploads
             $this->processImageUpload($request, $systemInformation, 'logo', 'logo', 316, 316);
             $this->processImageUpload($request, $systemInformation, 'icon', 'icon', 50, 50);
-            $this->processImageUpload($request, $systemInformation, 'rectangular_logo', 'rect_logo', 200, 100);
+            $this->processImageUpload($request, $systemInformation, 'rectangular_logo', 'rect_logo', 1380, 298);
 
             $systemInformation->save();
             DB::commit();

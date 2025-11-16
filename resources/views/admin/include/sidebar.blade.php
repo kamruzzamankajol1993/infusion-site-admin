@@ -33,15 +33,15 @@
         {{-- Frontend Section Title --}}
         <div class="sidebar-title px-3 pt-3">Frontend</div>
 
-        @if ($usr->can('sliderView') || $usr->can('iifcStrengthView'))
+        @if ($usr->can('sliderView') || $usr->can('iifcStrengthView') || $usr->can('clientView') || $usr->can('countryView'))
         
          {{-- Added slider.* and iifcStrength.* to Route::is checks --}}
-        <a href="#homepage-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center {{ Route::is(['slider.*', 'iifcStrength.*', 'singleSourceSelection.*', 'tendering.*']) ? 'active' : '' }}">
+        <a href="#homepage-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center {{ Route::is(['slider.*', 'iifcStrength.*', 'singleSourceSelection.*', 'tendering.*', 'client.*', 'country.*','solution.*']) ? 'active' : '' }}">
             <div><i class="bi bi-house-door me-3"></i>Home Page</div>
             <i class="bi bi-chevron-down"></i>
         </a>
         {{-- Added slider.* and iifcStrength.* to Route::is checks --}}
-        <div id="homepage-collapse" class="collapse {{ Route::is(['slider.*', 'iifcStrength.*', 'singleSourceSelection.*', 'tendering.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
+        <div id="homepage-collapse" class="collapse {{ Route::is(['slider.*', 'iifcStrength.*', 'singleSourceSelection.*', 'tendering.*', 'client.*', 'country.*','solution.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
             <div class="list-group list-group-flush sidebar-submenu">
                 {{-- Slider Link (MOVED HERE) --}}
                 @if ($usr->can('sliderView'))
@@ -53,15 +53,37 @@
                 @if ($usr->can('iifcStrengthView'))
               
                
-                <a href="{{ route('singleSourceSelection.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('singleSourceSelection.*') ? 'active' : '' }}">
-                  {{ $engageTitles[1] ?? 'Single Source Selection' }}
+                <a href="{{ route('iifcStrength.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('iifcStrength.*') ? 'active' : '' }}">
+                  At A Glance
                 </a>
               
-                <a href="{{ route('tendering.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('tendering.*') ? 'active' : '' }}">
-                  {{ $engageTitles[2] ?? 'Tendering' }}
+               
+                @endif
+
+                @if ($usr->can('solutionView')) {{-- Make sure to create this permission --}}
+        <a href="{{ route('solution.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('solution.*') ? 'active' : '' }}">
+            Our Solutions
+        </a>
+        @endif
+
+        @if ($usr->can('countryView'))
+                <a href="{{ route('country.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('country.*') ? 'active' : '' }}">
+                    Country List
+                </a>
+                @endif
+
+        @if ($usr->can('clientView'))
+                <a href="{{ route('client.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('client.*') ? 'active' : '' }}">
+                    Client Logos
                 </a>
                 @endif
                 {{-- Add other home page links here if needed --}}
+
+                @if ($usr->can('whyUsView')) {{-- Make sure to create this permission --}}
+        <a href="{{ route('why-us.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('why-us.*') ? 'active' : '' }}">
+            Why Us
+        </a>
+        @endif
             </div>
         </div>
         @endif {{-- End Home Page Parent Check --}}
@@ -72,7 +94,28 @@
             <i class="bi bi-info-circle me-3"></i>About Us
         </a>
         @endif
+{{-- *** NEW TEAM LINK *** --}}
+        @if ($usr->can('teamView')) {{-- Make sure to create this permission --}}
+        <a href="{{ route('team.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('team.*') ? 'active' : '' }}">
+            <i class="bi bi-people me-3"></i>Team
+        </a>
+        @endif
+        {{-- *** END NEW LINK *** --}}
+        {{-- *** NEW WHY CHOOSE US LINK *** --}}
+        @if ($usr->can('whyChooseUsView')) {{-- Make sure to create this permission --}}
+        <a href="{{ route('why-choose-us.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('why-choose-us.*') ? 'active' : '' }}">
+            <i class="bi bi-award me-3"></i>Why Choose Us
+        </a>
+        @endif
+        {{-- *** END NEW LINK *** --}}
 
+        {{-- *** NEW MEDIA LINK *** --}}
+        @if ($usr->can('mediaView')) {{-- Make sure to create this permission --}}
+        <a href="{{ route('media.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('media.*') ? 'active' : '' }}">
+            <i class="bi bi-youtube me-3"></i>Media (YouTube)
+        </a>
+        @endif
+        {{-- *** END NEW LINK *** --}}
         {{-- Contact Messages Link --}}
         @if ($usr->can('contactUsView'))
         <a href="{{ route('contactUs.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('contactUs.*') ? 'active' : '' }}">
@@ -87,21 +130,16 @@
         </a>
         @endif
 
-        {{-- Bread Crumb Image Link --}}
-        @if ($usr->can('breadCrumbImageView'))
-        <a href="{{ route('breadCrumbImage.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('breadCrumbImage.*') ? 'active' : '' }}">
-            <i class="bi bi-image me-3"></i>Bread Crumb Image
-        </a>
-        @endif
+       
 
         {{-- Projects Submenu (Parent) --}}
         {{-- Checks if user can view any related item to show the parent --}}
-        @if ($usr->can('projectCategoryView') || $usr->can('projectView') || $usr->can('clientView') || $usr->can('countryView'))
-        <a href="#projects-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center {{ Route::is(['projectCategory.*', 'project.*', 'client.*', 'country.*']) ? 'active' : '' }}">
+        @if ($usr->can('projectCategoryView') || $usr->can('projectView') )
+        <a href="#projects-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center {{ Route::is(['projectCategory.*', 'project.*']) ? 'active' : '' }}">
             <div><i class="bi bi-kanban me-3"></i>Projects</div>
             <i class="bi bi-chevron-down"></i>
         </a>
-        <div id="projects-collapse" class="collapse {{ Route::is(['projectCategory.*', 'project.*', 'client.*', 'country.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
+        <div id="projects-collapse" class="collapse {{ Route::is(['projectCategory.*', 'project.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
             <div class="list-group list-group-flush sidebar-submenu">
                 {{-- Project Categories Link --}}
                 @if ($usr->can('projectCategoryView'))
@@ -116,17 +154,9 @@
                 </a>
                 @endif
                 {{-- Client Logos Link --}}
-                @if ($usr->can('clientView'))
-                <a href="{{ route('client.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('client.*') ? 'active' : '' }}">
-                    Client Logos
-                </a>
-                @endif
+                
                 {{-- Country List Link --}}
-                @if ($usr->can('countryView'))
-                <a href="{{ route('country.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('country.*') ? 'active' : '' }}">
-                    Country List
-                </a>
-                @endif
+                
             </div>
         </div>
         @endif {{-- End Project Parent Check --}}

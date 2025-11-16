@@ -20,50 +20,54 @@ class AboutUsController extends Controller
 
     /**
      * Display the About Us management page.
-     * Fetches the first record or initializes an empty one for the form.
      */
     public function index(): View
     {
-        // Get the first record, or a new empty instance if none exists
         $aboutUs = AboutUs::firstOrNew([]);
         return view('admin.about_us.index', compact('aboutUs'));
     }
 
     /**
      * Store the newly created About Us content.
-     * Since there should only be one record, this usually runs only once.
      */
     public function store(Request $request): RedirectResponse
     {
-        // Prevent creating more than one record
         if (AboutUs::count() > 0) {
             return redirect()->route('aboutUs.index')->with('error', 'About Us content already exists. Please edit the existing content.');
         }
 
         $validatedData = $request->validate([
-            'mission_title' => 'required|string|max:255',
-            'mission_description' => 'required|string',
-            'vision_title' => 'required|string|max:255',
-            'vision_description' => 'required|string',
-            'objectives_title' => 'required|string|max:255',
-            'objectives_description' => 'required|string',
-            'brief_description' => 'required|string',
-            'organogram_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:1024', // Example max 1MB
+            'our_story' => 'required|string',
+            'team_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:1024', // 600x400
+            'mission' => 'required|string',
+            'vision' => 'required|string',
+            'mission_vision_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:1024', // 600x400
+            'founder_quote' => 'required|string',
+            'founder_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:1024', // 400x500
+            'founder_name' => 'required|string|max:255',
+            'founder_designation' => 'required|string|max:255',
+            'trade_license' => 'required|string|max:255',
+            'bin' => 'required|string|max:255',
+            'tin' => 'required|string|max:255',
         ]);
 
         DB::beginTransaction();
         try {
             $aboutData = $validatedData;
+            $tempModel = new AboutUs(); // For trait
 
-            // Handle image upload using the trait
-            // Create a temporary model instance (won't be saved)
-             $tempModel = new AboutUs();
-            $imagePath = $this->handleImageUpload($request, $tempModel, 'organogram_image', 'about_us', 1280, 800);
-            if ($imagePath) {
-                $aboutData['organogram_image'] = $imagePath;
-            } else {
-                throw new Exception("Organogram image upload failed or missing.");
-            }
+            // Handle Team Image (600x400)
+            $teamImagePath = $this->handleImageUpload($request, $tempModel, 'team_image', 'about_us', 600, 400);
+            $aboutData['team_image'] = $teamImagePath ?? throw new Exception("Team Image upload failed.");
+
+            // Handle Mission/Vision Image (600x400)
+            $mvImagePath = $this->handleImageUpload($request, $tempModel, 'mission_vision_image', 'about_us', 600, 400);
+            $aboutData['mission_vision_image'] = $mvImagePath ?? throw new Exception("Mission/Vision Image upload failed.");
+
+            // Handle Founder Image (400x500)
+            $founderImagePath = $this->handleImageUpload($request, $tempModel, 'founder_image', 'about_us', 400, 500);
+            $aboutData['founder_image'] = $founderImagePath ?? throw new Exception("Founder Image upload failed.");
+
 
             AboutUs::create($aboutData);
             DB::commit();
@@ -73,7 +77,7 @@ class AboutUsController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Failed to create About Us content: ' . $e->getMessage());
+            Log::error('Failed to create About Us content: ' ->getMessage());
             return redirect()->back()->withInput()->withErrors($e instanceof \Illuminate\Validation\ValidationException ? $e->errors() : ['error' => 'Failed to save content. Please check logs.']);
         }
     }
@@ -85,23 +89,32 @@ class AboutUsController extends Controller
     public function update(Request $request, AboutUs $aboutUs): RedirectResponse
     {
         $validatedData = $request->validate([
-            'mission_title' => 'required|string|max:255',
-            'mission_description' => 'required|string',
-            'vision_title' => 'required|string|max:255',
-            'vision_description' => 'required|string',
-            'objectives_title' => 'required|string|max:255',
-            'objectives_description' => 'required|string',
-            'brief_description' => 'required|string',
-            'organogram_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:1024', // Nullable on update
+            'our_story' => 'required|string',
+            'team_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024', // 600x400
+            'mission' => 'required|string',
+            'vision' => 'required|string',
+            'mission_vision_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024', // 600x400
+            'founder_quote' => 'required|string',
+            'founder_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024', // 400x500
+            'founder_name' => 'required|string|max:255',
+            'founder_designation' => 'required|string|max:255',
+            'trade_license' => 'required|string|max:255',
+            'bin' => 'required|string|max:255',
+            'tin' => 'required|string|max:255',
         ]);
 
         DB::beginTransaction();
         try {
             $aboutData = $validatedData;
 
-            // Handle image update using the trait
-            $imagePath = $this->handleImageUpdate($request, $aboutUs, 'organogram_image', 'about_us', 1280, 800);
-            $aboutData['organogram_image'] = $imagePath; // Trait returns old path if no new image
+            // Handle Team Image Update (600x400)
+            $aboutData['team_image'] = $this->handleImageUpdate($request, $aboutUs, 'team_image', 'about_us', 600, 400);
+
+            // Handle Mission/Vision Image Update (600x400)
+            $aboutData['mission_vision_image'] = $this->handleImageUpdate($request, $aboutUs, 'mission_vision_image', 'about_us', 600, 400);
+
+            // Handle Founder Image Update (400x500)
+            $aboutData['founder_image'] = $this->handleImageUpdate($request, $aboutUs, 'founder_image', 'about_us', 400, 500);
 
             $aboutUs->update($aboutData);
             DB::commit();
@@ -115,14 +128,4 @@ class AboutUsController extends Controller
              return redirect()->back()->withInput()->withErrors($e instanceof \Illuminate\Validation\ValidationException ? $e->errors() : ['error' => 'Failed to update content. Please check logs.']);
         }
     }
-
-    // Note: create(), show(), edit(), destroy() methods from the resource controller
-    // are not strictly necessary here as we manage a single record via index().
-    // You can remove them or leave them empty if generated by --resource.
-    public function create() { return redirect()->route('aboutUs.index'); }
-    public function show(AboutUs $aboutUs) { return redirect()->route('aboutUs.index'); }
-    public function edit(AboutUs $aboutUs) { return redirect()->route('aboutUs.index'); }
-    // Destroy might be needed if you want to allow deleting the content entirely
-    // public function destroy(AboutUs $aboutUs) { /* ... */ }
-
 }

@@ -52,34 +52,51 @@ IIFC’s Strength Settings | {{ $ins_name }}
                 @csrf
                 @method('PUT') {{-- Use PUT method for update --}}
 
+                {{-- *** UPDATED FORM FIELDS *** --}}
                 <div class="row g-3">
-                    {{-- Ongoing Project --}}
-                    <div class="col-md-6 col-lg-3">
-                        <label for="ongoing_project" class="form-label">Ongoing Projects <span class="text-danger">*</span></label>
-                        <input type="number" min="0" step="1" class="form-control @error('ongoing_project') is-invalid @enderror" id="ongoing_project" name="ongoing_project" value="{{ old('ongoing_project', $strength->ongoing_project) }}" required>
-                        @error('ongoing_project') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    
+                    {{-- Projects --}}
+                    <div class="col-md-6 col-lg-4">
+                        <label for="projects" class="form-label">Projects <span class="text-danger">*</span></label>
+                        <input type="number" min="0" step="1" class="form-control @error('projects') is-invalid @enderror" id="projects" name="projects" value="{{ old('projects', $strength->projects) }}" required>
+                        @error('projects') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    {{-- Complete Projects --}}
-                    <div class="col-md-6 col-lg-3">
-                        <label for="complete_projects" class="form-label">Completed Projects <span class="text-danger">*</span></label>
-                        <input type="number" min="0" step="1" class="form-control @error('complete_projects') is-invalid @enderror" id="complete_projects" name="complete_projects" value="{{ old('complete_projects', $strength->complete_projects) }}" required>
-                        @error('complete_projects') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    {{-- Products --}}
+                    <div class="col-md-6 col-lg-4">
+                        <label for="products" class="form-label">Products <span class="text-danger">*</span></label>
+                        <input type="number" min="0" step="1" class="form-control @error('products') is-invalid @enderror" id="products" name="products" value="{{ old('products', $strength->products) }}" required>
+                        @error('products') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    {{-- Experts --}}
+                    <div class="col-md-6 col-lg-4">
+                        <label for="experts" class="form-label">Experts <span class="text-danger">*</span></label>
+                        <input type="number" min="0" step="1" class="form-control @error('experts') is-invalid @enderror" id="experts" name="experts" value="{{ old('experts', $strength->experts) }}" required>
+                        @error('experts') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     {{-- Countries --}}
-                    <div class="col-md-6 col-lg-3">
-                        <label for="countries" class="form-label">Countries Active In <span class="text-danger">*</span></label>
+                    <div class="col-md-6 col-lg-4">
+                        <label for="countries" class="form-label">Countries <span class="text-danger">*</span></label>
                         <input type="number" min="0" step="1" class="form-control @error('countries') is-invalid @enderror" id="countries" name="countries" value="{{ old('countries', $strength->countries) }}" required>
                         @error('countries') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    {{-- Years in Business --}}
-                    <div class="col-md-6 col-lg-3">
-                        <label for="years_in_business" class="form-label">Years in Business <span class="text-danger">*</span></label>
-                        <input type="number" min="0" step="1" class="form-control @error('years_in_business') is-invalid @enderror" id="years_in_business" name="years_in_business" value="{{ old('years_in_business', $strength->years_in_business) }}" required>
-                        @error('years_in_business') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    {{-- Happy Clients --}}
+                    <div class="col-md-6 col-lg-4">
+                        <label for="happy_clients" class="form-label">Happy Clients <span class="text-danger">*</span></label>
+                        <input type="number" min="0" step="1" class="form-control @error('happy_clients') is-invalid @enderror" id="happy_clients" name="happy_clients" value="{{ old('happy_clients', $strength->happy_clients) }}" required>
+                        @error('happy_clients') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
+
+                    {{-- Years Experienced --}}
+                    <div class="col-md-6 col-lg-4">
+                        <label for="yrs_experienced" class="form-label">Years Experienced <span class="text-danger">*</span></label>
+                        <input type="number" min="0" step="1" class="form-control @error('yrs_experienced') is-invalid @enderror" id="yrs_experienced" name="yrs_experienced" value="{{ old('yrs_experienced', $strength->yrs_experienced) }}" required>
+                        @error('yrs_experienced') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
                 </div>
 
                 {{-- Submit Button --}}
@@ -94,6 +111,7 @@ IIFC’s Strength Settings | {{ $ins_name }}
 
 @section('script')
 <script>
+    // This script is generic and does not need changes
     $(document).ready(function() {
         // --- Form Submission Validation Trigger ---
         $('form#strengthForm').submit(function(e) {

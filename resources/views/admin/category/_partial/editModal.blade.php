@@ -1,55 +1,49 @@
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form id="editForm" class="modal-content">
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="editModalLabel">Edit Category</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <form id="editForm" method="POST" action="">
+            @csrf
+            @method('PUT')
             <input type="hidden" id="editId">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Category</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="editName" class="form-label">Name</label>
-                    <input type="text" id="editName" name="name" class="form-control">
-                </div>
-
-               <div class="mb-3">
-    <label for="editParentIds" class="form-label">Parent Category</label>
-    <select name="parent_ids[]" id="editParentIds" class="form-control" multiple style="display: none;">
-        @foreach($categories as $cat)
-            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-        @endforeach
-    </select>
-    {{-- This is the new custom component that the user will see --}}
-    <div class="custom-select-container" data-target-select="#editParentIds"></div>
-</div>
-
-                <div class="mb-3">
-                    <label for="editDescription" class="form-label">Description</label>
-                    <textarea id="editDescription" name="description" class="form-control" rows="3"></textarea>
+                    <label for="editName" class="form-label">Category Name <span class="text-danger">*</span></label>
+                    <input type="text" id="editName" name="name" class="form-control" value="{{ old('name') }}" required>
+                    @error('name', 'update') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="mb-3">
-                    <label for="editImage" class="form-label">Image</label>
-                    <input type="file" id="editImage" name="image" class="form-control" accept="image/webp">
-                    <img id="imagePreview" src="" alt="Image Preview" class="img-thumbnail mt-2" style="max-width: 100px; display: none;">
-                    <span class="text-danger" style="font-size: 12px;">image width: 50px and height: 50px, type: webp</span>
-                </div>
-  <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="edit_is_featured" name="is_featured" value="1">
-        <label class="form-check-label" for="edit_is_featured">Set as Featured Category</label>
-    </div>
-                <div class="mb-3">
-                    <label for="editStatus" class="form-label">Status</label>
-                    <select id="editStatus" name="status" class="form-control select2-basic">
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
+                    <label for="editParentId" class="form-label">Parent Category</label>
+                    <select name="parent_id" id="editParentId" class="form-select">
+                        <option value="">-- None (Top Level) --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
                     </select>
+                    @error('parent_id', 'update') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="editStatus" class="form-label">Status <span class="text-danger">*</span></label>
+                    <select name="status" id="editStatus" class="form-select" required>
+                        <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                    @error('status', 'update') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" id="editSubmitBtn">Save Changes</button>
             </div>
         </form>
+      </div>
     </div>
-</div>
+  </div>

@@ -6,204 +6,174 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
-use Intervention\Image\Laravel\Facades\Image;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
+    /**
+     * Add permissions middleware.
+     */
+    public function __construct()
+    {
+         // *** IMPORTANT: Create these permissions in your seeder ***
+         $this->middleware('permission:categoryView|categoryAdd|categoryUpdate|categoryDelete', ['only' => ['index','data']]);
+         $this->middleware('permission:categoryAdd', ['only' => ['store']]);
+         $this->middleware('permission:categoryUpdate', ['only' => ['show', 'update']]);
+         $this->middleware('permission:categoryDelete', ['only' => ['destroy']]);
+    }
+
+    /**
+     * Display the listing page.
+     */
     public function index(): View
     {
-        $categories = Category::orderBy('name', 'asc')->get();
+        // Fetch categories for the 'Parent' dropdown in modals
+        $categories = Category::where('status', true)->orderBy('name', 'asc')->get();
         return view('admin.category.index', compact('categories'));
     }
 
-    public function data(Request $request)
+   /**
+    * Provide data for the AJAX Data Table.
+    */
+   public function data(Request $request): JsonResponse
     {
         try {
-            $query = Category::with('parents');
+            $query = Category::with('parent'); // Eager load the parent relationship
 
+            // Search
             if ($request->filled('search')) {
-                $query->where('name', 'like', $request->search . '%');
+                $query->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhereHas('parent', fn($q) => $q->where('name', 'like', '%' . $request->search . '%'));
             }
 
-            $sort = $request->get('sort', 'id');
-            $direction = $request->get('direction', 'desc');
-            $query->orderBy($sort, $direction);
+            // Sorting
+            $sortColumn = $request->input('sort', 'id');
+            $sortDirection = $request->input('direction', 'desc');
+            
+            if ($sortColumn == 'parent') {
+                // Sort by parent name
+                $query->leftJoin('categories as parents', 'categories.parent_id', '=', 'parents.id')
+                      ->orderBy('parents.name', $sortDirection)
+                      ->select('categories.*'); // Ensure we only select columns from the main table
+            } else {
+                $query->orderBy($sortColumn, $sortDirection);
+            }
 
-            $categories = $query->paginate(10);
+            $paginated = $query->paginate(10); // Adjust page size
 
             return response()->json([
-                'data' => $categories->items(),
-                'total' => $categories->total(),
-                'current_page' => $categories->currentPage(),
-                'last_page' => $categories->lastPage(),
+                'data' => $paginated->items(),
+                'total' => $paginated->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
             ]);
+
         } catch (Exception $e) {
-            Log::error('Failed to fetch category data: ' . $e);
-            return response()->json(['error' => 'Failed to retrieve data.'], 500);
+            Log::error('Failed to fetch categories: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to retrieve categories.'], 500);
         }
     }
 
-    public function show($id)
+    /**
+     * Store a newly created resource in storage (from Add modal).
+     */
+    public function store(Request $request): RedirectResponse
     {
-        try {
-            $category = Category::with('parents')->findOrFail($id);
-            $category->parent_ids = $category->parents->pluck('id');
-            return response()->json($category);
-        } catch (Exception $e) {
-            Log::error("Failed to show category ID {$id}: " . $e);
-            return response()->json(['error' => 'Category not found.'], 404);
-        }
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|unique:categories,name',
-            'parent_ids' => 'nullable|array',
-            'parent_ids.*' => 'exists:categories,id',
-            'image' => 'nullable|image|max:2048',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:categories,name',
+            'parent_id' => 'nullable|exists:categories,id',
+            'status' => 'required|boolean',
         ]);
 
+        if ($validator->fails()) {
+            return redirect()->back()
+                         ->withErrors($validator)
+                         ->withInput()
+                         ->with('error_modal', 'addModal'); // Tell script to re-open add modal
+        }
+
         try {
-            $path = null;
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = 'anim_cat_'.time().'.webp';
-                $destinationPath = public_path('uploads/categories');
-
-                if (!File::isDirectory($destinationPath)) {
-                    File::makeDirectory($destinationPath, 0777, true, true);
-                }
-
-                Image::read($image->getRealPath())->resize(50, 50, function ($c) {
-                    $c->aspectRatio(); $c->upsize();
-                })->toWebp()->save($destinationPath.'/'.$imageName);
-                $path = 'uploads/categories/'.$imageName;
-            }
-
-            $category = Category::create([
-                'name' => $request->name,
-                'slug' => Str::slug($request->name),
-                'description' => $request->description,
-                 'is_featured' => $request->boolean('is_featured'),
-                'image' => $path,
-            ]);
-
-            if ($request->filled('parent_ids')) {
-                $category->parents()->attach($request->parent_ids);
-            }
-
-            Log::info('Category created successfully.', ['id' => $category->id, 'name' => $category->name]);
-            return redirect()->back()->with('success', 'Category created successfully!');
+            Category::create($request->all());
+            Log::info('Category created successfully.', ['name' => $request->name]);
+            return redirect()->route('category.index')->with('success','Category created successfully!');
 
         } catch (Exception $e) {
-            Log::error('Failed to create category: ' . $e);
-            return redirect()->back()->with('error', 'Failed to create category. Please check logs.')->withInput();
+            Log::error('Failed to create category: ' . $e->getMessage());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to create category. Please check logs.']);
         }
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Display the specified resource (used to fetch data for edit modal).
+     */
+    public function show($id): JsonResponse
     {
         try {
             $category = Category::findOrFail($id);
+            return response()->json($category); 
+        } catch (Exception $e) {
+             Log::warning("Attempted to fetch non-existent category ID {$id}");
+             return response()->json(['error' => 'Category not found.'], 404);
+        }
+    }
 
-            $request->validate([
-                'name' => 'required|string|unique:categories,name,' . $category->id,
-                'parent_ids' => 'nullable|array',
-                'parent_ids.*' => 'exists:categories,id',
-                'image' => 'nullable|image|max:2048',
-            ]);
+    /**
+     * Update the specified resource in storage (from Edit modal).
+     */
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255', Rule::unique('categories')->ignore($id)],
+            'parent_id' => ['nullable', 'exists:categories,id', Rule::notIn([$id])], // Cannot be its own parent
+            'status' => 'required|boolean',
+        ],[
+            'parent_id.not_in' => 'A category cannot be its own parent.'
+        ]);
 
-            $path = $category->image;
-            if ($request->hasFile('image')) {
-                if ($category->image && File::exists(public_path($category->image))) {
-                    File::delete(public_path($category->image));
-                }
-                $image = $request->file('image');
-                $imageName = 'anim_cat_'.time().'.webp';
-                $destinationPath = public_path('uploads/categories');
+        if ($validator->fails()) {
+            return redirect()->back()
+                         ->withErrors($validator, 'update') // Tag errors for 'update'
+                         ->withInput()
+                         ->with('error_modal_id', $id); // Tell script to re-open this specific modal
+        }
 
-                if (!File::isDirectory($destinationPath)) {
-                    File::makeDirectory($destinationPath, 0777, true, true);
-                }
-
-                Image::read($image->getRealPath())->resize(50, 50, function ($c) {
-                    $c->aspectRatio(); $c->upsize();
-                })->toWebp()->save($destinationPath.'/'.$imageName);
-                $path = 'uploads/categories/'.$imageName;
-            }
-
-            $category->update([
-                'name' => $request->name,
-                'slug' => Str::slug($request->name),
-                'description' => $request->description,
-                'status' => $request->status,
-                'image' => $path,
-                 'is_featured' => $request->boolean('is_featured'),
-            ]);
-            
-            $category->parents()->sync($request->parent_ids ?? []);
-
+        try {
+            $category = Category::findOrFail($id); 
+            $category->update($request->all());
             Log::info('Category updated successfully.', ['id' => $id]);
-            return response()->json(['message' => 'Category updated successfully']);
+            return redirect()->route('category.index')->with('success', 'Category updated successfully');
 
         } catch (Exception $e) {
-            Log::error("Failed to update category ID {$id}: " . $e);
-            return response()->json(['error' => 'Failed to update category.'], 500);
+            Log::error("Failed to update category ID {$id}: " . $e->getMessage());
+             return redirect()->back()
+                        ->withErrors(['error' => 'Failed to update category.'], 'update') 
+                        ->withInput()
+                        ->with('error_modal_id', $id);
         }
     }
 
-    public function destroy($id)
+
+    /**
+     * Remove the specified resource from storage (single delete).
+     */
+    public function destroy($id): RedirectResponse
     {
         try {
             $category = Category::findOrFail($id);
-            if ($category->image && File::exists(public_path($category->image))) {
-                File::delete(public_path($category->image));
-            }
-            $category->parents()->detach();
-            $category->children()->detach();
-            $category->delete();
+            $category->delete(); // Child categories will have parent_id set to null
 
-            Log::info('Category deleted successfully.', ['id' => $id]);
-            return redirect()->route('category.index')->with('success', 'Category deleted successfully!');
+            return redirect()->route('category.index')->with('success', 'Category deleted successfully.');
+
         } catch (Exception $e) {
-            Log::error("Failed to delete category ID {$id}: " . $e);
+            Log::error("Failed to delete category ID {$id}: " . $e->getMessage());
             return redirect()->route('category.index')->with('error', 'Failed to delete category.');
-        }
-    }
-
-    public function destroyMultiple(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:categories,id',
-        ]);
-
-        try {
-            DB::transaction(function () use ($request) {
-                $categories = Category::whereIn('id', $request->ids)->get();
-
-                foreach ($categories as $category) {
-                    if ($category->image && File::exists(public_path($category->image))) {
-                        File::delete(public_path($category->image));
-                    }
-                    $category->parents()->detach();
-                    $category->children()->detach();
-                }
-
-                Category::whereIn('id', $request->ids)->delete();
-            });
-
-            Log::info('Multiple categories deleted successfully.', ['ids' => $request->ids]);
-            return response()->json(['message' => 'Selected categories have been deleted successfully!']);
-        } catch (Exception $e) {
-            Log::error('Failed to delete multiple categories: ' . $e);
-            return response()->json(['error' => 'Failed to delete categories.'], 500);
         }
     }
 }

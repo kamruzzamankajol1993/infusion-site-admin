@@ -329,45 +329,45 @@
         </div>
         @endif {{-- End VPS/RDP Parent Check --}}
         {{-- Other Frontend Links (Placeholders or actual links) --}}
-    {{-- Press Release Link (UPDATED/CONFIRMED) --}}
-        @if ($usr->can('pressReleaseView')) {{-- Assuming permission --}}
-        <a href="{{ route('pressRelease.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('pressRelease.*') ? 'active' : '' }}">
-            <i class="bi bi-newspaper me-3"></i>Press Release
+  {{-- *** UPDATED ECOMMERCE DROPDOWN *** --}}
+        @if ($usr->can('categoryView') || $usr->can('productView')) {{-- Added productView --}}
+        <div class="sidebar-title px-3 pt-3">Ecommerce</div>
+        <a href="#ecommerce-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center 
+           {{ Route::is('category.*', 'product.*', 'storeMainBanner.*', 'storeSideBanner.*') ? 'active' : '' }}"> {{-- Added product.* --}}
+            <div><i class="bi bi-cart3 me-3"></i>Store Management</div>
+            <i class="bi bi-chevron-down"></i>
         </a>
-        @endif
+        <div id="ecommerce-collapse" class="collapse {{ Route::is('category.*', 'product.*', 'storeMainBanner.*', 'storeSideBanner.*') ? 'show' : '' }}" data-bs-parent="#sidebar-accordion"> {{-- Added product.* --}}
+            <div class="list-group list-group-flush sidebar-submenu">
+                
+                @if ($usr->can('storeMainBannerView'))
+                <a href="{{ route('storeMainBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeMainBanner.*') ? 'active' : '' }}">
+                    Main Banners (Slider)
+                </a>
+                @endif
+                
+                @if ($usr->can('storeSideBannerView'))
+                <a href="{{ route('storeSideBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeSideBanner.*') ? 'active' : '' }}">
+                    Side Banners
+                </a>
+                @endif
 
-        
-    @if ($usr->can('galleryView')) {{-- Assuming permission --}}
-        <a href="{{ route('gallery.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('gallery.*') ? 'active' : '' }}">
-            <i class="bi bi-images me-3"></i>Gallery
-        </a>
-        @endif
-@if ($usr->can('publicationView')) {{-- Assuming permission --}}
-        <a href="{{ route('publication.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('publication.*') ? 'active' : '' }}">
-            <i class="bi bi-book me-3"></i>Publication
-        </a>
-        @endif
+                @if ($usr->can('categoryView'))
+                <a href="{{ route('category.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('category.*') ? 'active' : '' }}">
+                    Categories
+                </a>
+                @endif
+                
+                {{-- *** NEW PRODUCT LINK *** --}}
+                @if ($usr->can('productView'))
+                <a href="{{ route('product.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('product.*') ? 'active' : '' }}">
+                    Products
+                </a>
+                @endif
 
-        {{-- ++++++++++ NEW FILE DOWNLOADS LINK ++++++++++ --}}
-        @if ($usr->can('downloadView')) {{-- New permission check --}}
-        <a href="{{ route('download.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('download.*') ? 'active' : '' }}">
-            <i class="bi bi-download me-3"></i>File Downloads
-        </a>
-        @endif
-        {{-- ++++++++++ END NEW LINK ++++++++++ --}}
-
-        @if ($usr->can('eventView')) {{-- Assuming permission --}}
-        <a href="{{ route('event.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('event.*') ? 'active' : '' }}">
-            <i class="bi bi-calendar-event me-3"></i>Events {{-- Example Icon --}}
-        </a>
-        @endif
-      
-{{-- Important Links Link --}}
-         @if ($usr->can('importantLinkView')) {{-- ADD PERMISSION CHECK --}}
-         <a href="{{ route('importantLink.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('importantLink.*') ? 'active' : '' }}">
-             <i class="bi bi-link-45deg me-3"></i>Important Links {{-- Example Icon --}}
-         </a>
-         @endif
+            </div>
+        </div>
+        @endif {{-- End Ecommerce Parent Check --}}
         
 
         {{-- Settings Section (Parent) --}}

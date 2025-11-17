@@ -1,48 +1,46 @@
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="addModalLabel">Add New Category</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addCategoryForm" method="post" action="{{ route('category.store') }}" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Category Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="Enter Category Name" required>
-                    </div>
-
-                 <div class="mb-3">
-    <label for="parentIds" class="form-label text-dark">Parent Category</label>
-    <select name="parent_ids[]" id="parentIds" class="form-control" multiple style="display: none;">
-        @foreach($categories as $cat)
-            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-        @endforeach
-    </select>
-    {{-- This is the new custom component that the user will see --}}
-    <div class="custom-select-container" data-target-select="#parentIds"></div>
-</div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Enter Description"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-dark">Image</label>
-                        <input type="file" accept="image/webp" name="image" class="form-control">
-                        <span class="text-danger" style="font-size: 12px;">image width: 50px and height: 50px, type: webp</span>
-                    </div>
-<div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch" id="is_featured" name="is_featured" value="1">
-        <label class="form-check-label" for="is_featured">Set as Featured Category</label>
-    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary btn-sm w-md mt-4">Submit</button>
-                    </div>
-                </form>
-            </div>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="addModalLabel">Add New Category</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <form id="addForm" method="post" action="{{ route('category.store') }}">
+            @csrf
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="addName" class="form-label">Category Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="addName" class="form-control" placeholder="Enter category name" value="{{ old('name') }}" required>
+                    @error('name') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                </div>
+                
+                <div class="mb-3">
+                    <label for="addParentId" class="form-label">Parent Category</label>
+                    <select name="parent_id" id="addParentId" class="form-select">
+                        <option value="">-- None (Top Level) --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('parent_id') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="addStatus" class="form-label">Status <span class="text-danger">*</span></label>
+                    <select name="status" id="addStatus" class="form-select" required>
+                        <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                    @error('status') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save Category</button>
+            </div>
+        </form>
+      </div>
     </div>
-</div>
+  </div>

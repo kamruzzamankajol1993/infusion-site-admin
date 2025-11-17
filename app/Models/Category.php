@@ -1,77 +1,94 @@
 <?php
+
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'name', 'slug', 'description', 'image', 'status','is_featured' 
-        // REMOVED 'parent_id' from this array
+        'name',
+        'slug',
+        'status',
+        'parent_id',
     ];
 
     /**
-     * The parents that belong to the category.
-     * Renamed from parent() to parents()
+     * The attributes that should be cast.
+     *
+     * @var array
      */
-    public function parents(): BelongsToMany
-    {
-        return $this->belongsToMany(Category::class, 'category_parent', 'category_id', 'parent_id');
-    }
+    protected $casts = [
+        'status' => 'boolean',
+    ];
 
     /**
-     * The children that belong to the category.
+     * Boot the model.
+     * This will automatically generate a unique slug when creating or updating.
      */
-    public function children(): BelongsToMany
+    protected static function boot()
     {
-        return $this->belongsToMany(Category::class, 'category_parent', 'parent_id', 'category_id');
-    }
+        parent::boot();
 
-    public function attributes(): BelongsToMany
-{
-    // Use withPivot to access the 'is_required' AND 'group_name' columns
-    return $this->belongsToMany(Attribute::class, 'attribute_category')
-                ->withPivot('is_required', 'group_name'); // 👈 ADD 'group_name' HERE
-}
+        static::creating(function ($category) {
+            $category->slug = static::createUniqueSlug($category->name);
+        });
 
-    // 👇 ADD THE FOLLOWING TWO METHODS
-
-    /**
-     * Get all parent category IDs in a flat array.
-     */
-    public function getAllParentIds(): array
-    {
-        $parentIds = [];
-        $parent = $this->parent;
-        while ($parent) {
-            $parentIds[] = $parent->id;
-            $parent = $parent->parent;
-        }
-        return $parentIds;
-    }
-
-    /**
-     * Get all descendant category IDs in a flat array.
-     */
-    public function getAllChildIds(): array
-    {
-        $childIds = [];
-        $children = $this->allChildren; // Uses the recursive relationship
-
-        $traverse = function ($categories) use (&$traverse, &$childIds) {
-            foreach ($categories as $category) {
-                $childIds[] = $category->id;
-                if ($category->allChildren->isNotEmpty()) {
-                    $traverse($category->allChildren);
-                }
+        static::updating(function ($category) {
+            if ($category->isDirty('name')) {
+                $category->slug = static::createUniqueSlug($category->name, $category->id);
             }
-        };
+        });
+    }
 
-        $traverse($children);
-        return $childIds;
+    /**
+     * Helper to create a unique slug.
+     */
+    private static function createUniqueSlug($name, $id = null)
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        // Check if slug exists
+        $query = static::where('slug', $slug);
+        if ($id) {
+            $query->where('id', '!=', $id); // Exclude self on update
+        }
+        
+        while ($query->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+            $query = static::where('slug', $slug);
+            if ($id) {
+                $query->where('id', '!=', $id);
+            }
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Get the parent category.
+     */
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    /**
+     * Get the child categories.
+     */
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
     }
 }

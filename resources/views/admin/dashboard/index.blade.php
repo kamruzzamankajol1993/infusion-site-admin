@@ -152,7 +152,7 @@ Dashboard
                                 <h5 class="mb-0">Upcoming Trainings</h5>
                                 {{-- Link to view all trainings --}}
                                 @if(Auth::user()->can('trainingView'))
-                                    <a href="{{ route('training.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
                                 @endif
                             </div>
                             <div class="card-body">
@@ -167,7 +167,7 @@ Dashboard
                                         <div class="flex-grow-1">
                                             {{-- Link to the training's show page --}}
                                             <h6 class="mb-0 fw-bold">
-                                                <a href="{{ route('training.show', $training->id) }}" class="text-decoration-none text-dark" title="{{ $training->title }}">
+                                                <a href="#" class="text-decoration-none text-dark" title="{{ $training->title }}">
                                                     {{ Str::limit($training->title, 35) }}
                                                 </a>
                                             </h6>
@@ -192,7 +192,7 @@ Dashboard
                              <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Recent Projects</h5>
                                  @if(Auth::user()->can('projectView'))
-                                <a href="{{ route('project.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
                                 @endif
                             </div>
                             <div class="table-responsive">
@@ -212,7 +212,7 @@ Dashboard
                                         <tr>
                                             <th scope="row">{{ $index + 1 }}</th>
                                             <td>
-                                                <a href="{{ route('project.show', $project->id) }}" class="text-decoration-none text-dark fw-medium" title="{{ $project->title }}">
+                                                <a href="#" class="text-decoration-none text-dark fw-medium" title="{{ $project->title }}">
                                                     {{ Str::limit($project->title, 45) }}
                                                 </a>
                                             </td>
@@ -247,14 +247,14 @@ Dashboard
                             <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Notice Board</h5>
                                  @if(Auth::user()->can('noticeView'))
-                                <a href="{{ route('notice.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
                                 @endif
                             </div>
                             <div class="card-body p-0">
                                 <div class="list-group list-group-flush">
                                     {{-- Loop through recent notices --}}
                                     @forelse($recentNotices as $notice)
-                                    <a href="{{ $notice->pdf_file ? asset($notice->pdf_file) : route('notice.show', $notice->id) }}" target="_blank" class="list-group-item list-group-item-action">
+                                    <a href="#" target="_blank" class="list-group-item list-group-item-action">
                                         <div class="d-flex w-100 justify-content-between">
                                             <h6 class="mb-1 fw-bold">{{ $notice->title }}</h6>
                                             <small class="text-muted">{{ $notice->date ? date('d M, Y', strtotime($notice->date)) : $notice->created_at->diffForHumans() }}</small>

@@ -102,7 +102,8 @@ use App\Http\Controllers\Admin\UkCompanyPageController;
 use App\Http\Controllers\Admin\UkPricingPackageController;
 use App\Http\Controllers\Admin\UkTestimonialController;
 use App\Http\Controllers\Admin\UkReviewPlatformController;
-
+use App\Http\Controllers\Admin\StoreMainBannerController;
+use App\Http\Controllers\Admin\StoreSideBannerController;
 use App\Http\Controllers\Admin\VpsPageController;
 use App\Http\Controllers\Admin\VpsPackageCategoryController;
 use App\Http\Controllers\Admin\VpsPackageController;
@@ -124,7 +125,7 @@ Route::get('/clear', function() {
 
 // Standard Laravel Auth Routes (Login, Register, etc. - mostly for backend)
 Auth::routes();
-
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 // Admin Login
 Route::controller(LoginController::class)->group(function () {
     Route::get('/', 'viewLoginPage')->name('viewLoginPage');
@@ -160,8 +161,22 @@ Route::post('/textMessageAll', [TextController::class, 'textMessage'])->name('te
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+Route::get('ajax/products', [App\Http\Controllers\Admin\ProductController::class, 'data'])->name('ajax.product.data');
+    Route::post('products/update-order', [App\Http\Controllers\Admin\ProductController::class, 'updateOrder'])->name('product.updateOrder');
+    Route::resource('product', App\Http\Controllers\Admin\ProductController::class);
 
+    // Category Routes
+    Route::get('ajax/categories', [App\Http\Controllers\Admin\CategoryController::class, 'data'])->name('ajax.category.data');
+    Route::resource('category', App\Http\Controllers\Admin\CategoryController::class);
 
+// Store Main Banner (Slider)
+    Route::get('ajax/store-main-banners', [StoreMainBannerController::class, 'data'])->name('ajax.storeMainBanner.data');
+    Route::post('store-main-banners/update-order', [StoreMainBannerController::class, 'updateOrder'])->name('storeMainBanner.updateOrder');
+    Route::resource('storeMainBanner', StoreMainBannerController::class);
+
+    // Store Side Banners (Singleton)
+    Route::get('store-side-banners', [StoreSideBannerController::class, 'index'])->name('storeSideBanner.index');
+    Route::post('store-side-banners', [StoreSideBannerController::class, 'storeOrUpdate'])->name('storeSideBanner.storeOrUpdate');
     // --- Frontend: VPS/RDP Page Content ---
     Route::prefix('vps-page-setup')->name('vpsPage.')->group(function () {
         
@@ -226,12 +241,12 @@ Route::middleware(['auth'])->group(function () {
         // Pricing Categories (CRUD + Reorder)
         Route::get('ajax/pricing-categories', [FacebookAdsPricingCategoryController::class, 'data'])->name('pricingCategory.data');
         Route::post('pricing-categories/update-order', [FacebookAdsPricingCategoryController::class, 'updateOrder'])->name('pricingCategory.updateOrder');
-        Route::resource('pricing-category', FacebookAdsPricingCategoryController::class);
+        Route::resource('pricingCategory', FacebookAdsPricingCategoryController::class);
 
         // Pricing Packages (CRUD + Reorder)
         Route::get('ajax/pricing-packages', [FacebookAdsPricingPackageController::class, 'data'])->name('pricingPackage.data');
         Route::post('pricing-packages/update-order', [FacebookAdsPricingPackageController::class, 'updateOrder'])->name('pricingPackage.updateOrder');
-        Route::resource('pricing-package', FacebookAdsPricingPackageController::class);
+        Route::resource('pricingPackage', FacebookAdsPricingPackageController::class);
 
         // FAQs (CRUD + Reorder)
         Route::get('ajax/faqs', [FacebookAdsFaqController::class, 'data'])->name('faq.data');
@@ -303,17 +318,17 @@ Route::middleware(['auth'])->group(function () {
         // Work Categories (CRUD + Reorder)
         Route::get('ajax/work-categories', [WebSolutionWorkCategoryController::class, 'data'])->name('workCategory.data');
         Route::post('work-categories/update-order', [WebSolutionWorkCategoryController::class, 'updateOrder'])->name('workCategory.updateOrder');
-        Route::resource('work-category', WebSolutionWorkCategoryController::class);
+        Route::resource('workCategory', WebSolutionWorkCategoryController::class);
 
         // Work Items (Portfolio) (CRUD + Reorder)
         Route::get('ajax/work-items', [WebSolutionWorkItemController::class, 'data'])->name('workItem.data');
         Route::post('work-items/update-order', [WebSolutionWorkItemController::class, 'updateOrder'])->name('workItem.updateOrder');
-        Route::resource('work-item', WebSolutionWorkItemController::class);
+        Route::resource('workItem', WebSolutionWorkItemController::class);
 
         // Care Items (CRUD + Reorder)
         Route::get('ajax/care-items', [WebSolutionCareItemController::class, 'data'])->name('careItem.data');
         Route::post('care-items/update-order', [WebSolutionCareItemController::class, 'updateOrder'])->name('careItem.updateOrder');
-        Route::resource('care-item', WebSolutionCareItemController::class);
+        Route::resource('careItem', WebSolutionCareItemController::class);
     });
     
     // Customer Dashboard

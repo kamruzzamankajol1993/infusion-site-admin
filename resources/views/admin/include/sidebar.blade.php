@@ -328,27 +328,28 @@
             </div>
         </div>
         @endif {{-- End VPS/RDP Parent Check --}}
-        {{-- Other Frontend Links (Placeholders or actual links) --}}
-  {{-- *** UPDATED ECOMMERCE DROPDOWN *** --}}
-        @if ($usr->can('categoryView') || $usr->can('productView')) {{-- Added productView --}}
-        <div class="sidebar-title px-3 pt-3">Ecommerce</div>
+       {{-- ============================================================== --}}
+        {{--                   ECOMMERCE MANAGEMENT                         --}}
+        {{-- ============================================================== --}}
+        @if ($usr->can('orderView') || $usr->can('productView') || $usr->can('categoryView') || $usr->can('reviewView') || $usr->can('storeMainBannerView'))
+        <div class="sidebar-title px-3 pt-3">Ecommerce & Store</div>
         <a href="#ecommerce-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center 
-           {{ Route::is('category.*', 'product.*', 'storeMainBanner.*', 'storeSideBanner.*') ? 'active' : '' }}"> {{-- Added product.* --}}
+           {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*']) ? 'active' : '' }}">
             <div><i class="bi bi-cart3 me-3"></i>Store Management</div>
             <i class="bi bi-chevron-down"></i>
         </a>
-        <div id="ecommerce-collapse" class="collapse {{ Route::is('category.*', 'product.*', 'storeMainBanner.*', 'storeSideBanner.*') ? 'show' : '' }}" data-bs-parent="#sidebar-accordion"> {{-- Added product.* --}}
+        <div id="ecommerce-collapse" class="collapse {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
             <div class="list-group list-group-flush sidebar-submenu">
                 
-                @if ($usr->can('storeMainBannerView'))
-                <a href="{{ route('storeMainBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeMainBanner.*') ? 'active' : '' }}">
-                    Main Banners (Slider)
+                @if ($usr->can('orderView'))
+                <a href="{{ route('order.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('order.*') ? 'active' : '' }}">
+                    Orders
                 </a>
                 @endif
-                
-                @if ($usr->can('storeSideBannerView'))
-                <a href="{{ route('storeSideBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeSideBanner.*') ? 'active' : '' }}">
-                    Side Banners
+
+                @if ($usr->can('productView'))
+                <a href="{{ route('product.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('product.*') ? 'active' : '' }}">
+                    Products
                 </a>
                 @endif
 
@@ -357,17 +358,37 @@
                     Categories
                 </a>
                 @endif
-                
-                {{-- *** NEW PRODUCT LINK *** --}}
-                @if ($usr->can('productView'))
-                <a href="{{ route('product.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('product.*') ? 'active' : '' }}">
-                    Products
+
+                @if ($usr->can('reviewView'))
+                <a href="{{ route('review.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('review.*') ? 'active' : '' }}">
+                    Product Reviews
                 </a>
                 @endif
 
+                @if ($usr->can('couponView')) {{-- Assuming coupon permission --}}
+                <a href="{{ route('coupon.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('coupon.*') ? 'active' : '' }}">
+                    Coupons
+                </a>
+                @endif
+
+                @if ($usr->can('storeMainBannerView'))
+                <a href="{{ route('storeMainBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeMainBanner.*') ? 'active' : '' }}">
+                    Store Sliders
+                </a>
+                @endif
+
+                @if ($usr->can('storeSideBannerView'))
+                <a href="{{ route('storeSideBanner.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('storeSideBanner.*') ? 'active' : '' }}">
+                    Store Side Banners
+                </a>
+                @endif
             </div>
         </div>
-        @endif {{-- End Ecommerce Parent Check --}}
+        @endif
+
+        {{-- ============================================================== --}}
+        {{--                   FRONTEND PAGES MODULES                       --}}
+        {{-- ============================================================== --}}
         
 
         {{-- Settings Section (Parent) --}}

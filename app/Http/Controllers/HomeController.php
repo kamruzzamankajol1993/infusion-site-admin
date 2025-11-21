@@ -4,106 +4,110 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use App\Models\Project;       // Added
-use App\Models\Officer;       // Added
-use App\Models\Training;      // Added
-use App\Models\Notice;        // Added
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Carbon\Carbon;
+
+// --- Import ALL necessary models ---
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Customer;
+use App\Models\ProductReview;
+use App\Models\ContactUsMessage; // Messages
+use App\Models\User;      // Admins/Staff
+use App\Models\StoreMainBanner;
+// Use specific module models to count data
+use App\Models\DigitalMarketingSolution;
+use App\Models\GraphicDesignSolution;
+use App\Models\FacebookAdsPricingPackage;
+use App\Models\UkPricingPackage;
+use App\Models\VpsPackage;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard with dynamic data.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index(Request $request)
     {
         try {
-            // --- Data for Summary Cards ---
-            // Card 1: Active Projects (Ongoing)
-            $ongoingProjectsCount = Project::where('status', 'ongoing')->count();
+            // --- 1. Ecommerce Metrics (Top Row) ---
+            $totalOrders = Order::count();
+            $totalRevenue = Order::where('payment_status', 'paid')->sum('grand_total');
+            $totalProducts = Product::count();
+            $totalCustomers = Customer::count();
 
-            // Card 2: Completed Projects
-            $completedProjectsCount = Project::where('status', 'complete')->count();
+            // --- 2. Pending Actions (Second Row) ---
+            $pendingOrders = Order::where('order_status', 'pending')->count();
+            $pendingReviews = ProductReview::where('status', 0)->count();
+            $unreadMessages = ContactUsMessage::count(); // Assuming you might add 'is_read' later, for now count all
+            $lowStockProducts = Product::where('stock_quantity', '<', 5)->count();
 
-            // Card 3: Team Experts (Total Officers)
-            $officerCount = Officer::count();
+            // --- 3. Content Summary (Third Row) ---
+            $activeBanners = StoreMainBanner::where('status', 1)->count();
+            
+            // Count total service packages across all modules
+            $totalPackages = DigitalMarketingSolution::count() + 
+                             GraphicDesignSolution::count() + 
+                             FacebookAdsPricingPackage::count() + 
+                             UkPricingPackage::count() + 
+                             VpsPackage::count();
 
-            // Card 4: Total Trainings (Replaced Countries)
-            $trainingCount = Training::count();
+            // --- 4. Chart Data: Monthly Revenue (Last 6 Months) ---
+            $revenueData = Order::select(
+                DB::raw('sum(grand_total) as sum'), 
+                DB::raw("DATE_FORMAT(created_at,'%M') as month")
+            )
+            ->where('payment_status', 'paid')
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('created_at', 'ASC') // Order by date to show sequence correctly (might need adjustment for strict date sorting)
+            ->pluck('sum', 'month');
 
+            // Fill in missing months if needed, for now simple pluck
+            $chartLabels = $revenueData->keys();
+            $chartValues = $revenueData->values();
 
-            // --- Data for Recent Projects Table ---
-            $recentProjects = Project::with(['client', 'category']) // Eager load client and category
-                ->latest() // Order by created_at desc
+            // --- 5. Recent Orders Table ---
+            $recentOrders = Order::with('items')
+                ->latest()
                 ->limit(5)
                 ->get();
 
-            // --- Data for Training Calendar ---
-            $upcomingTrainings = Training::where('start_date', '>=', Carbon::today())
-                ->orderBy('start_date', 'asc')
-                ->limit(3)
-                ->get();
-
-            // --- Data for Notice Board ---
-            $recentNotices = Notice::with('category') // Eager load category
-                ->latest() // Order by created_at desc
-                ->limit(3)
-                ->get();
-
-            // --- Data for Projects Chart (Projects by Status) ---
-            $projectsByStatus = Project::select('status', DB::raw('count(*) as count'))
-                ->groupBy('status')
-                ->pluck('count', 'status'); // Returns a collection like ['pending' => 5, 'ongoing' => 10, ...]
-
-            $projectsByStatusChart = [
-                'labels' => ['Pending', 'Ongoing', 'Complete'],
-                'data' => [
-                    $projectsByStatus->get('pending', 0),   // Get count for 'pending', default to 0
-                    $projectsByStatus->get('ongoing', 0),   // Get count for 'ongoing', default to 0
-                    $projectsByStatus->get('complete', 0),  // Get count for 'complete', default to 0
-                ],
-            ];
-
-            // Pass all variables to the dashboard view
             return view('admin.dashboard.index', [
-                'ongoingProjectsCount' => $ongoingProjectsCount,
-                'completedProjectsCount' => $completedProjectsCount,
-                'officerCount' => $officerCount,
-                'trainingCount' => $trainingCount,
-                'recentProjects' => $recentProjects,
-                'upcomingTrainings' => $upcomingTrainings,
-                'recentNotices' => $recentNotices,
-                'projectsByStatusChart' => $projectsByStatusChart,
-                // 'activeFilter' => 'month', // This filter from your old controller doesn't seem to be used
+                // Metrics
+                'totalOrders' => $totalOrders,
+                'totalRevenue' => $totalRevenue,
+                'totalProducts' => $totalProducts,
+                'totalCustomers' => $totalCustomers,
+                
+                // Pending
+                'pendingOrders' => $pendingOrders,
+                'pendingReviews' => $pendingReviews,
+                'unreadMessages' => $unreadMessages,
+                'lowStockProducts' => $lowStockProducts,
+                
+                // Content
+                'activeBanners' => $activeBanners,
+                'totalPackages' => $totalPackages,
+
+                // Data
+                'recentOrders' => $recentOrders,
+                'chartLabels' => $chartLabels,
+                'chartValues' => $chartValues,
             ]);
 
         } catch (Exception $e) {
             Log::error('Failed to load dashboard data: ' . $e->getMessage());
-            // Pass empty data on failure to prevent view from breaking
+            // Return view with zeroed data to prevent crash
             return view('admin.dashboard.index', [
-                'ongoingProjectsCount' => 0,
-                'completedProjectsCount' => 0,
-                'officerCount' => 0,
-                'trainingCount' => 0,
-                'recentProjects' => collect(),
-                'upcomingTrainings' => collect(),
-                'recentNotices' => collect(),
-                'projectsByStatusChart' => [ 'labels' => ['Pending', 'Ongoing', 'Complete'], 'data' => [0, 0, 0] ],
-            ])->with('error', 'Could not load all dashboard data.');
+                'totalOrders' => 0, 'totalRevenue' => 0, 'totalProducts' => 0, 'totalCustomers' => 0,
+                'pendingOrders' => 0, 'pendingReviews' => 0, 'unreadMessages' => 0, 'lowStockProducts' => 0,
+                'activeBanners' => 0, 'totalPackages' => 0,
+                'recentOrders' => collect(), 'chartLabels' => [], 'chartValues' => [],
+            ])->with('error', 'Could not load dashboard statistics.');
         }
     }
 }

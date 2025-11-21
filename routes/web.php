@@ -107,6 +107,8 @@ use App\Http\Controllers\Admin\StoreSideBannerController;
 use App\Http\Controllers\Admin\VpsPageController;
 use App\Http\Controllers\Admin\VpsPackageCategoryController;
 use App\Http\Controllers\Admin\VpsPackageController;
+
+// --- Admin: Ecommerce Section ---
 /*
 |--------------------------------------------------------------------------
 | Public (Guest) Routes
@@ -438,22 +440,24 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('get-attributes-by-category/{category}', [ProductController::class, 'getAttributesByCategory'])->name('products.get-attributes');
     Route::get('/products/{product}/attributes-for-order', [ProductController::class, 'getAttributesForOrder'])->name('product.get-attributes-for-order');
 
-    Route::resource('order', OrderController::class);
+    // Orders
     Route::get('ajax_orders', [OrderController::class, 'data'])->name('ajax.order.data');
-    Route::controller(OrderController::class)->group(function () {
-        Route::post('orders/bulk-update-status', 'bulkUpdateStatus')->name('order.bulk-update-status');
-        Route::post('order-payment/{order}', 'storePayment')->name('order.payment.store');
-        Route::get('order-print-a4/{order}', 'printA4')->name('order.print.a4');
-        Route::get('order-print-a5/{order}', 'printA5')->name('order.print.a5');
-        Route::get('order-print-pos/{order}', 'printPOS')->name('order.print.pos');
-        Route::get('order-search-customers', 'searchCustomers')->name('order.search-customers');
-        Route::post('storeorder-update-status/{order}', 'updateStatus')->name('order.update-status');
-        Route::get('orderstore_details/{id}', 'getDetails')->name('order.get-details');
-        Route::get('ordersdestroymultiple', 'destroyMultiple')->name('order.destroy-multiple');
-        Route::get('order-get-customer-details/{id}', 'getCustomerDetails')->name('order.get-customer-details');
-        Route::get('order-search-products', 'searchProducts')->name('order.search-products');
-        Route::get('order-get-product-details/{id}', 'getProductDetails')->name('order.get-product-details');
-    });
+    Route::post('orders/bulk-update-status', [OrderController::class, 'bulkUpdateStatus'])->name('order.bulk-update-status');
+    Route::post('storeorder-update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.update-status');
+    Route::post('order-payment/{order}', [OrderController::class, 'storePayment'])->name('order.payment.store');
+    Route::get('ordersdestroymultiple', [OrderController::class, 'destroyMultiple'])->name('order.destroy-multiple');
+    // Printing
+    Route::get('order-print-a4/{id}', [OrderController::class, 'printA4'])->name('order.print.a4');
+    Route::get('order-print-a5/{id}', [OrderController::class, 'printA5'])->name('order.print.a5');
+    Route::get('order-print-pos/{id}', [OrderController::class, 'printPOS'])->name('order.print.pos');
+    Route::resource('order', OrderController::class);
+Route::get('ajax-coupons', [App\Http\Controllers\Admin\CouponController::class, 'data'])->name('ajax.coupons.data');
+    Route::resource('coupon', App\Http\Controllers\Admin\CouponController::class);
+    // Product Reviews
+    Route::get('ajax/reviews/data', [ReviewController::class, 'data'])->name('ajax.review.data');
+    Route::delete('reviews/bulk-delete', [ReviewController::class, 'destroyMultiple'])->name('review.destroyMultiple');
+    Route::delete('review-images/{image}', [ReviewController::class, 'destroyImage'])->name('review.image.destroy');
+    Route::resource('review', ReviewController::class);
     
     Route::resource('customer', CustomerController::class);
     Route::get('ajax-customers', [CustomerController::class, 'data'])->name('ajax.customer.data');
@@ -579,9 +583,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::resource('banner', BannerController::class);
     Route::resource('clientSay', ClientSayController::class);
     
-    Route::resource('review', ReviewController::class);
-    Route::get('ajax/reviews/data', [ReviewController::class, 'data'])->name('ajax.review.data');
-    Route::delete('review-images/{image}', [ReviewController::class, 'destroyImage'])->name('review.image.destroy');
+   
     
     Route::resource('newsAndMedia', NewsAndMediaController::class);
     Route::resource('defaultLocation', DefaultLocationController::class);

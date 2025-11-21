@@ -12,21 +12,22 @@ class Coupon extends Model
     protected $fillable = [
         'code',
         'type',
-        'value',
-        'min_amount',
-        'user_type',
-        'product_ids',
-        'category_ids',
-        'usage_limit',
-        'times_used',
-        'expires_at',
+        'amount',
+        'expire_date',
         'status',
     ];
 
     protected $casts = [
-        'product_ids' => 'array',
-        'category_ids' => 'array',
-        'expires_at' => 'date',
+        'amount' => 'decimal:2',
         'status' => 'boolean',
+        'expire_date' => 'date',
     ];
+    
+    // Helper to check validity
+    public function isValid()
+    {
+        if (!$this->status) return false;
+        if ($this->expire_date && $this->expire_date->isPast()) return false;
+        return true;
+    }
 }

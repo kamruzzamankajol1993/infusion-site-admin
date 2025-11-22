@@ -5,9 +5,9 @@
     var canDelete = @json(Auth::user()->can('webSolutionWorkItemDelete'));
     var routes = {
         fetch: "{{ route('webSolution.workItem.data') }}",
-        show: id => `{{ route('webSolution.work-item.show', ':id') }}`.replace(':id', id),
-        update: id => `{{ route('webSolution.work-item.update', ':id') }}`.replace(':id', id),
-        delete: id => `{{ route('webSolution.work-item.destroy', ':id') }}`.replace(':id', id),
+        show: id => `{{ route('webSolution.workItem.show', ':id') }}`.replace(':id', id),
+        update: id => `{{ route('webSolution.workItem.update', ':id') }}`.replace(':id', id),
+        delete: id => `{{ route('webSolution.workItem.destroy', ':id') }}`.replace(':id', id),
         updateOrder: "{{ route('webSolution.workItem.updateOrder') }}",
         token: "{{ csrf_token() }}",
         assetBase: "{{ asset('') }}"

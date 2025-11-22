@@ -101,7 +101,7 @@ class SliderController extends Controller
             'short_description' => 'nullable|string|max:1000',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB example
         ],[
-            'image.dimensions' => 'Image dimensions must be exactly 2560x1920 pixels.',
+            'image.dimensions' => 'Image dimensions must be exactly 1920x1080 pixels.',
             'image.max' => 'Image size cannot exceed 5MB.',
         ]);
 
@@ -112,7 +112,7 @@ class SliderController extends Controller
 
             // Handle Image Upload using Trait
             $tempModel = new Slider();
-            $imagePath = $this->handleImageUpload($request, $tempModel, 'image', 'sliders', 2560, 1920); // Pass dimensions
+            $imagePath = $this->handleImageUpload($request, $tempModel, 'image', 'sliders', 1920, 1080); // Pass dimensions
             if ($imagePath) {
                 $sliderData['image'] = $imagePath; // Path relative to public/uploads/
             } else {
@@ -159,7 +159,7 @@ class SliderController extends Controller
             'short_description' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Nullable on update
         ],[
-            'image.dimensions' => 'Image dimensions must be exactly 2560x1920 pixels.',
+            'image.dimensions' => 'Image dimensions must be exactly 1920x 1080 pixels.',
             'image.max' => 'Image size cannot exceed 5MB.',
         ]);
 
@@ -169,7 +169,7 @@ class SliderController extends Controller
             unset($sliderData['image']); // Remove image initially
 
             // Handle Image Update using Trait
-            $imagePath = $this->handleImageUpdate($request, $slider, 'image', 'sliders', 2560, 1920); // Pass dimensions
+            $imagePath = $this->handleImageUpdate($request, $slider, 'image', 'sliders', 1920, 1080); // Pass dimensions
             $sliderData['image'] = $imagePath; // Trait returns old or new path
 
             $slider->update($sliderData);

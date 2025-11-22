@@ -14,11 +14,13 @@ use Illuminate\Support\Facades\Log;
 class UkCompanyPageController extends Controller
 {
     use ImageUploadTrait;
+    
     public function __construct() {
-         $this->middleware('permission:ukCompanyPageView', ['only' => ['index', 'storeOrUpdate']]); // Create this permission
+         $this->middleware('permission:ukCompanyPageView', ['only' => ['index', 'storeOrUpdate']]); 
     }
 
     public function index(): View {
+        // Use firstOrNew here too, so the view doesn't crash if table is empty
         $content = UkCompanyPage::firstOrNew([]);
         return view('admin.uk_company_page.index', compact('content'));
     }
@@ -30,7 +32,7 @@ class UkCompanyPageController extends Controller
             'hero_description' => 'required|string',
             'hero_button_text' => 'required|string|max:100',
             'hero_button_link' => 'required|string|max:255',
-            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024', // 400x450
+            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024', 
             'carbon_badge_text' => 'required|string|max:255',
             'pricing_title' => 'required|string|max:255',
             'pricing_description' => 'required|string',
@@ -40,13 +42,26 @@ class UkCompanyPageController extends Controller
 
         DB::beginTransaction();
         try {
-            $content = UkCompanyPage::firstOrCreate([]);
+            // 1. Fetch the record or create a NEW instance in memory (DO NOT SAVE YET)
+            $content = UkCompanyPage::firstOrNew([]);
+
             $data = $validatedData;
+
+            // 2. Handle Image (Pass the content object, even if new)
+            // Note: Ensure your handleImageUpdate trait handles 'new' models correctly.
+            // If $content->exists is false, the trait usually works fine for uploading.
             $data['hero_image'] = $this->handleImageUpdate($request, $content, 'hero_image', 'uk_company', 400, 450);
-            $content->update($data);
+
+            // 3. Fill the model with data
+            $content->fill($data);
+
+            // 4. Save to Database (This performs the INSERT with all data, or UPDATE)
+            $content->save();
+
             DB::commit();
             Log::info('UK Company Page content updated successfully.');
             return redirect()->route('ukCompany.page.index')->with('success', 'Content updated successfully.');
+
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to update UK Company Page content: ' . $e->getMessage());

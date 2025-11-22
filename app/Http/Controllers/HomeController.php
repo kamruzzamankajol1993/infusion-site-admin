@@ -37,7 +37,7 @@ class HomeController extends Controller
             $totalOrders = Order::count();
             $totalRevenue = Order::where('payment_status', 'paid')->sum('grand_total');
             $totalProducts = Product::count();
-            $totalCustomers = Customer::count();
+            $totalCustomers = User::where('user_type',1)->count();
 
             // --- 2. Pending Actions (Second Row) ---
             $pendingOrders = Order::where('order_status', 'pending')->count();

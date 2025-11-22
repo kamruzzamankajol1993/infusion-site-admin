@@ -35,9 +35,9 @@ FB Pricing Categories | {{ $ins_name }}
     <div class="card shadow-sm">
         <div class="card-header bg-white">
             <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
-                <li class="nav-item" role="presentation"><a class="nav-link {{ $activeTab === 'table' ? 'active' : '' }}" href="{{ route('facebookAds.pricing-category.index', ['tab' => 'table']) }}" id="table-tab"><i data-feather="list" class="me-1" style="width:16px;"></i> Data Table</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link {{ $activeTab === 'table' ? 'active' : '' }}" href="{{ route('facebookAds.pricingCategory.index', ['tab' => 'table']) }}" id="table-tab"><i data-feather="list" class="me-1" style="width:16px;"></i> Data Table</a></li>
                 @if (Auth::user()->can('facebookAdsPricingCategoryUpdate'))
-                <li class="nav-item" role="presentation"><a class="nav-link {{ $activeTab === 'reorder' ? 'active' : '' }}" href="{{ route('facebookAds.pricing-category.index', ['tab' => 'reorder']) }}" id="reorder-tab"><i data-feather="move" class="me-1" style="width:16px;"></i> Drag & Drop Reorder</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link {{ $activeTab === 'reorder' ? 'active' : '' }}" href="{{ route('facebookAds.pricingCategory.index', ['tab' => 'reorder']) }}" id="reorder-tab"><i data-feather="move" class="me-1" style="width:16px;"></i> Drag & Drop Reorder</a></li>
                 @endif
             </ul>
         </div>

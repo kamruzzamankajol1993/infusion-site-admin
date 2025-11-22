@@ -61,13 +61,13 @@ Work Categories | {{ $ins_name }}
         <div class="card-header bg-white">
             <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link {{ $activeTab === 'table' ? 'active' : '' }}" href="{{ route('webSolution.work-category.index', ['tab' => 'table']) }}" id="table-tab">
+                    <a class="nav-link {{ $activeTab === 'table' ? 'active' : '' }}" href="{{ route('webSolution.workCategory.index', ['tab' => 'table']) }}" id="table-tab">
                         <i data-feather="list" class="me-1" style="width:16px;"></i> Data Table
                     </a>
                 </li>
                 @if (Auth::user()->can('webSolutionWorkCategoryUpdate')) {{-- Adjust permission --}}
                 <li class="nav-item" role="presentation">
-                     <a class="nav-link {{ $activeTab === 'reorder' ? 'active' : '' }}" href="{{ route('webSolution.work-category.index', ['tab' => 'reorder']) }}" id="reorder-tab">
+                     <a class="nav-link {{ $activeTab === 'reorder' ? 'active' : '' }}" href="{{ route('webSolution.workCategory.index', ['tab' => 'reorder']) }}" id="reorder-tab">
                        <i data-feather="move" class="me-1" style="width:16px;"></i> Drag & Drop Reorder
                     </a>
                 </li>

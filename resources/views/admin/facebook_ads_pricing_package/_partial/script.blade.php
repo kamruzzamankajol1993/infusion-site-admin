@@ -5,9 +5,9 @@
     var canDelete = @json(Auth::user()->can('facebookAdsPricingPackageDelete'));
     var routes = {
         fetch: "{{ route('facebookAds.pricingPackage.data') }}",
-        show: id => `{{ route('facebookAds.pricing-package.show', ':id') }}`.replace(':id', id),
-        update: id => `{{ route('facebookAds.pricing-package.update', ':id') }}`.replace(':id', id),
-        delete: id => `{{ route('facebookAds.pricing-package.destroy', ':id') }}`.replace(':id', id),
+        show: id => `{{ route('facebookAds.pricingPackage.show', ':id') }}`.replace(':id', id),
+        update: id => `{{ route('facebookAds.pricingPackage.update', ':id') }}`.replace(':id', id),
+        delete: id => `{{ route('facebookAds.pricingPackage.destroy', ':id') }}`.replace(':id', id),
         updateOrder: "{{ route('facebookAds.pricingPackage.updateOrder') }}",
         token: "{{ csrf_token() }}"
     };

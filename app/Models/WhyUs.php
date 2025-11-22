@@ -23,6 +23,7 @@ class WhyUs extends Model
      */
     protected $fillable = [
         'name',
+        'title',
         'image',
     ];
 }

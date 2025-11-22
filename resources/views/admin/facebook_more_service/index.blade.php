@@ -4,6 +4,9 @@
 <style>
     #sortableList { list-style-type: none; padding: 0; max-width: 800px; margin: auto; }
     #sortableList li { padding: 10px 15px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; background-color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .sortable-item-content { display: flex; align-items: center; }
+    /* New image style for reorder list */
+    .sortable-item-content img { width: 50px; height: 50px; margin-right: 15px; object-fit: contain; border-radius: 4px; }
     .sortable-handle { cursor: move; font-size: 1.2rem; color: #aaa; margin-right: 15px; }
     .sortable-ghost { opacity: 0.4; background: #e6f7ff; }
 </style>
@@ -45,7 +48,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width: 5%;">Sl</th>
-                                    <th style="width: 15%;">Icon Name</th>
+                                    <th style="width: 15%;">Image</th> {{-- Changed from Icon Name --}}
                                     <th class="sortable" data-column="title" style="width: 30%;">Title</th>
                                     <th style="width: 25%;">Description</th>
                                     <th class="sortable" data-column="order" style="width: 10%;">Order</th>
@@ -66,7 +69,12 @@
                         <ul id="sortableList">
                             @foreach($items as $item)
                             <li data-id="{{ $item->id }}">
-                                <div><span class="sortable-handle"><i class="bi bi-grip-vertical"></i></span> <strong>{{ $item->title }}</strong></div>
+                                <div class="sortable-item-content">
+                                    <span class="sortable-handle"><i class="bi bi-grip-vertical"></i></span>
+                                    {{-- Display image in reorder list --}}
+                                    <img src="{{ asset($item->image) }}" alt="{{ $item->title }}">
+                                    <div><strong>{{ $item->title }}</strong></div>
+                                </div>
                                 <span class="badge bg-secondary rounded-pill">Order: {{ $item->order }}</span>
                             </li>
                             @endforeach

@@ -3,275 +3,149 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rules;
-use App\Models\User; 
-use Hash;
+use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Validation\Rule;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function __construct()
     {
-        try {
-            return view('admin.customer.index');
-        } catch (Exception $e) {
-            Log::error('Failed to load customer index page: ' . $e);
-            return redirect()->back()->with('error', 'Could not load the page.');
-        }
+         // Define permissions in your seeder: customerView, customerAdd, customerUpdate, customerDelete
+         $this->middleware('permission:customerView|customerAdd|customerUpdate|customerDelete', ['only' => ['index','data']]);
+         $this->middleware('permission:customerAdd', ['only' => ['store']]);
+         $this->middleware('permission:customerUpdate', ['only' => ['show', 'update']]);
+         $this->middleware('permission:customerDelete', ['only' => ['destroy']]);
     }
 
-    public function data(Request $request)
+    public function index(): View
+    {
+        return view('admin.customer.index');
+    }
+
+   public function data(Request $request): JsonResponse
     {
         try {
-            $query = Customer::with('addresses')->withSum(['orders' => function ($query) {
-                $query->where('payment_status', 'paid');
-            }], 'total_amount');
+            // Filter only customers (user_type = 1)
+            $query = User::where('user_type', 1);
 
             if ($request->filled('search')) {
-                $query->where('name', 'like', $request->search . '%')
-                      ->orWhere('email', 'like', $request->search . '%')
-                      ->orWhere('phone', 'like', $request->search . '%');
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('phone', 'like', "%{$search}%");
+                });
             }
 
-            $query->orderBy($request->get('sort', 'id'), $request->get('direction', 'desc'));
-            $customers = $query->paginate(10);
+            // Sort defaults
+            $sortColumn = $request->input('sort', 'id');
+            $sortDirection = $request->input('direction', 'desc');
+            $allowedSorts = ['id', 'name', 'email', 'phone', 'created_at'];
+            
+            if (in_array($sortColumn, $allowedSorts)) {
+                $query->orderBy($sortColumn, $sortDirection);
+            } else {
+                $query->orderBy('id', 'desc');
+            }
+
+            $paginated = $query->paginate(10);
 
             return response()->json([
-                'data' => $customers->items(),
-                'total' => $customers->total(),
-                'current_page' => $customers->currentPage(),
-                'last_page' => $customers->lastPage(),
+                'data' => $paginated->items(),
+                'total' => $paginated->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
             ]);
+
         } catch (Exception $e) {
-            Log::error('Failed to fetch customer data: ' . $e);
-            return response()->json(['error' => 'Failed to retrieve data.'], 500);
+            Log::error('Failed to fetch customers: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to retrieve customers.'], 500);
         }
     }
 
-    public function create()
+    public function store(Request $request): RedirectResponse
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'password' => 'required|string|min:8', // Password required on create
+        ]);
+
         try {
-            return view('admin.customer.create');
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'password' => Hash::make($request->password),
+                'user_type' => 1, // Force Customer Type
+                'status' => 1,    // Default Active
+            ]);
+
+            return redirect()->route('customer.index')->with('success','Customer account created successfully!');
+
         } catch (Exception $e) {
-            Log::error('Failed to load create customer page: ' . $e);
-            return redirect()->back()->with('error', 'Could not load the page.');
+            Log::error('Failed to create customer: ' . $e->getMessage());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to create customer.']);
         }
     }
 
-      public function store(Request $request)
+    public function show($id): JsonResponse
     {
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:255', 'unique:customers'],
-            'type' => ['required', 'string', 'in:normal,silver,platinum'],
-            'addresses' => ['required', 'array', 'min:1'],
-            'addresses.*.address' => ['required', 'string', 'max:255'],
-            'default_address_index' => ['required', 'numeric'],
-        ];
-
-        if ($request->boolean('create_login_account')) {
-            $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:users'];
-            // --- UPDATED VALIDATION RULE ---
-            $rules['password'] = ['required', 'confirmed', Rules\Password::min(8)];
-        } else {
-            $rules['email'] = ['nullable', 'string', 'email', 'max:255', 'unique:customers'];
-        }
-
-        $request->validate($rules);
-
         try {
-            DB::transaction(function () use ($request) {
-                $userId = null;
-                if ($request->boolean('create_login_account')) {
-                    $user = User::create([
-                        'name' => $request->name,
-                        'email' => $request->email,
-                        'phone' => $request->phone,
-                        'user_type' => 1,
-                        'status' => 1,
-                        'password' => $request->password,
-                    ]);
-                    $userId = $user->id;
-                }
-
-                $customer = Customer::create([
-                    'user_id' => $userId,
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'type' => $request->type,
-                    'source' => 'admin', // Customers created here are from admin
-                ]);
-
-                 if ($request->boolean('create_login_account')) {
-                    $user->update(['customer_id' => $customer->id]);
-                }   
-
-                if ($request->has('addresses')) {
-                    $defaultIndex = $request->default_address_index;
-                    foreach ($request->addresses as $index => $addressData) {
-                        if (!empty($addressData['address'])) {
-                            $addressData['is_default'] = ($index == $defaultIndex);
-                            $customer->addresses()->create($addressData);
-                        }
-                    }
-                }
-            });
-
-            Log::info('Customer created successfully.', ['name' => $request->name]);
-            return redirect()->route('customer.index')->with('success', 'Customer created successfully.');
-
+            // Ensure we only fetch customers
+            $customer = User::where('user_type', 1)->findOrFail($id);
+            return response()->json($customer);
         } catch (Exception $e) {
-            Log::error('Failed to create customer: ' . $e);
-            return redirect()->back()->with('error', 'Failed to create customer. Please check logs.')->withInput();
+             return response()->json(['error' => 'Customer not found.'], 404);
         }
     }
 
-    public function show(Customer $customer)
+    public function update(Request $request, $id): RedirectResponse
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users')->ignore($id)],
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            // Password is NOT validated here as it is hidden/not updated in this form
+        ]);
+
         try {
-            $customer->load('addresses', 'orders');
-            $user = $customer->user_id ? User::find($customer->user_id) : null;
-            $totalOrders = $customer->orders->count();
-            $pendingOrders = $customer->orders->where('status', 'pending')->count();
-            $totalBuyAmount = $customer->orders->where('payment_status', 'paid')->sum('total_amount');
+            $customer = User::where('user_type', 1)->findOrFail($id);
+            
+            $customer->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                // user_type remains 1
+            ]);
 
-            $salesData = $customer->orders()
-                ->select(DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'), DB::raw('SUM(total_amount) as total_sales'))
-                ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
-                ->groupBy('month')->orderBy('month', 'asc')->get()->pluck('total_sales', 'month');
+            return redirect()->route('customer.index')->with('success', 'Customer details updated successfully');
 
-            $months = collect();
-            for ($i = 11; $i >= 0; $i--) {
-                $months->put(now()->subMonths($i)->format('Y-m'), 0);
-            }
-            $monthlyTotals = $months->merge($salesData);
-
-            $chartData = [['Month', 'Amount']];
-            foreach ($monthlyTotals as $month => $total) {
-                $chartData[] = [date('M', strtotime($month . '-01')), $total];
-            }
-
-            return view('admin.customer.show', compact('customer', 'user', 'totalOrders', 'pendingOrders', 'totalBuyAmount', 'chartData'));
         } catch (Exception $e) {
-            Log::error("Failed to show customer ID {$customer->id}: " . $e);
-            return redirect()->route('customer.index')->with('error', 'Could not load customer details.');
+             return redirect()->back()->withInput()->withErrors(['error' => 'Failed to update customer.']);
         }
     }
 
-    public function edit(Customer $customer)
+    public function destroy($id): RedirectResponse
     {
         try {
-            $customer->load('addresses');
-            $user = $customer->user_id ? User::find($customer->user_id) : null;
-            return view('admin.customer.edit', compact('customer', 'user'));
-        } catch (Exception $e) {
-            Log::error("Failed to load edit page for customer ID {$customer->id}: " . $e);
-            return redirect()->route('customer.index')->with('error', 'Customer not found.');
-        }
-    }
-
-    // --- UPDATED UPDATE FUNCTION ---
-    public function update(Request $request, Customer $customer)
-    {
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:255', 'unique:customers,phone,' . $customer->id],
-            'type' => ['required', 'string', 'in:normal,silver,platinum'],
-            'addresses' => ['required', 'array', 'min:1'],
-            'addresses.*.address' => ['required', 'string', 'max:255'],
-            'default_address_index' => ['required', 'numeric'],
-        ];
-
-        if ($customer->user_id || $request->boolean('create_login_account')) {
-            $userId = $customer->user_id ?? 'NULL';
-            $rules['email'] = ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId];
-            $rules['password'] = ['nullable', 'confirmed', Rules\Password::min(8)];
-        } else {
-            $rules['email'] = ['nullable', 'string', 'email', 'max:255', 'unique:customers,email,' . $customer->id];
-        }
-
-        $request->validate($rules);
-
-        try {
-            DB::transaction(function () use ($request, $customer) {
-                $userId = $customer->user_id;
-
-                // Case 1: Customer has no login, but we are creating one now.
-                if (!$userId && $request->boolean('create_login_account')) {
-                    $user = User::create([
-                        'name' => $request->name,
-                        'email' => $request->email,
-                        'phone' => $request->phone,
-                        'user_type' => 1,
-                        'status' => 1,
-                        'password' => $request->password,
-                        'customer_id' => $customer->id, // <-- The key change!
-                    ]);
-                    $userId = $user->id;
-                } 
-                // Case 2: Customer already has a login, so we update it.
-                else if ($userId) {
-                    $user = User::find($userId);
-                    if ($user) {
-                        $userData = [
-                            'name' => $request->name,
-                            'email' => $request->email,
-                            'phone' => $request->phone,
-                        ];
-                        if ($request->filled('password')) {
-                            $userData['password'] = $request->password;
-                        }
-                        $user->update($userData);
-                    }
-                }
-
-                // Update the customer with the latest info, including the new user_id if created.
-                $customer->update([
-                    'user_id' => $userId,
-                    'name' => $request->name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'type' => $request->type,
-                ]);
-
-                // Re-sync addresses
-                $customer->addresses()->delete();
-                if ($request->has('addresses')) {
-                    $defaultIndex = $request->default_address_index;
-                    foreach ($request->addresses as $index => $addressData) {
-                        if (!empty($addressData['address'])) {
-                            $addressData['is_default'] = ($index == $defaultIndex);
-                            $customer->addresses()->create($addressData);
-                        }
-                    }
-                }
-            });
-
-            Log::info('Customer updated successfully.', ['id' => $customer->id]);
-            return redirect()->route('customer.index')->with('success', 'Customer updated successfully.');
-        } catch (Exception $e) {
-            Log::error("Failed to update customer ID {$customer->id}: " . $e);
-            return redirect()->back()->with('error', 'Failed to update customer. Please check logs.')->withInput();
-        }
-    }
-
-    public function destroy(Customer $customer)
-    {
-        try {
-            // Deleting a customer might also delete their associated user account
-            if ($customer->user_id) {
-                User::find($customer->user_id)->delete();
-            }
+            $customer = User::where('user_type', 1)->findOrFail($id);
             $customer->delete();
-            Log::info('Customer deleted successfully.', ['id' => $customer->id]);
-            return redirect()->route('customer.index')->with('success', 'Customer deleted successfully.');
+            return redirect()->route('customer.index')->with('success', 'Customer account deleted successfully.');
         } catch (Exception $e) {
-            Log::error("Failed to delete customer ID {$customer->id}: " . $e);
             return redirect()->route('customer.index')->with('error', 'Failed to delete customer.');
         }
     }

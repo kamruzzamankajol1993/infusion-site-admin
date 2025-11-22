@@ -5,9 +5,9 @@
     var canDelete = @json(Auth::user()->can('webSolutionWorkCategoryDelete')); // Adjust permission
     var routes = {
         fetch: "{{ route('webSolution.workCategory.data') }}",
-        show: id => `{{ route('webSolution.work-category.show', ':id') }}`.replace(':id', id),
-        update: id => `{{ route('webSolution.work-category.update', ':id') }}`.replace(':id', id),
-        delete: id => `{{ route('webSolution.work-category.destroy', ':id') }}`.replace(':id', id),
+        show: id => `{{ route('webSolution.workCategory.show', ':id') }}`.replace(':id', id),
+        update: id => `{{ route('webSolution.workCategory.update', ':id') }}`.replace(':id', id),
+        delete: id => `{{ route('webSolution.workCategory.destroy', ':id') }}`.replace(':id', id),
         updateOrder: "{{ route('webSolution.workCategory.updateOrder') }}",
         token: "{{ csrf_token() }}"
     };

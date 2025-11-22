@@ -389,23 +389,32 @@ About Us Content | {{ $ins_name }}
         }
 
 
-        // --- Image Preview Logic ---
+        // --- Image Preview Logic (CORRECTED) ---
         function handleImagePreview(inputId, previewId, placeholderClass) {
             $("#" + inputId).change(function() {
                 const input = this;
+                // Find the preview image tag using the ID passed
                 const preview = $('#' + previewId);
+                // Find the placeholder span (sibling of the image)
                 const placeholder = preview.siblings(placeholderClass);
 
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
+                    
                     reader.onload = function(e) {
+                        // Update the src attribute with the new file data
                         preview.attr('src', e.target.result);
-                        preview.css('display', 'block');
-                        placeholder.css('display', 'none');
-Two in-depth classes, a workshop, and a networking event are happening this week.
+                        // Make sure the image is visible
+                        preview.show(); 
+                        // Hide the "Preview Text" placeholder
+                        placeholder.hide(); 
                     };
+                    
                     reader.readAsDataURL(input.files[0]);
                 } else {
+                    // If the user cancels the input or selects nothing
+                     // Note: In edit mode, this might hide the existing DB image. 
+                     // You might want to add logic here to check if it had an original src if strictly needed.
                      preview.attr('src', '#').hide();
                      placeholder.show();
                 }

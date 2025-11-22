@@ -9,7 +9,8 @@
         update: id => `{{ route('webSolution.include.update', ':id') }}`.replace(':id', id),
         delete: id => `{{ route('webSolution.include.destroy', ':id') }}`.replace(':id', id),
         updateOrder: "{{ route('webSolution.include.updateOrder') }}",
-        token: "{{ csrf_token() }}"
+        token: "{{ csrf_token() }}",
+        assetBase: "{{ asset('') }}"
     };
     function fetchData() {
         $.get(routes.fetch, { page: currentPage, search: searchTerm, sort: sortColumn, direction: sortDirection }, res => {
@@ -19,11 +20,12 @@
                  $('#tableBody').html(rows); $('#tableRowCount').text(`Showing 0 to 0 of 0 entries`); $('#pagination').empty(); return;
             }
             res.data.forEach((item, i) => {
+                let img = item.image ? `<img src="${routes.assetBase}${item.image}" alt="${item.title}" style="width: 50px; height: 50px; object-fit: contain;">` : ``;
                 let editBtn = canUpdate ? `<button class="btn btn-sm btn-info btn-edit btn-custom-sm" data-id="${item.id}" title="Edit"><i class="fa fa-edit"></i></button> ` : '';
                 let delBtn = canDelete ? `<button class="btn btn-sm btn-danger btn-delete btn-custom-sm" data-id="${item.id}" title="Delete"><i class="fa fa-trash"></i></button>` : '';
                 rows += `<tr>
                     <td>${(res.current_page - 1) * res.per_page + i + 1}</td>
-                    <td>${item.icon_name || 'N/A'}</td>
+                    <td>${img}</td>
                     <td>${item.title || 'N/A'}</td>
                     <td>${item.description || 'N/A'}</td>
                     <td>${item.order}</td> <td>${editBtn}${delBtn}</td>
@@ -53,10 +55,21 @@
     $(document).on('click', '.page-link', e => { e.preventDefault(); const page = parseInt($(e.currentTarget).data('page')); if (!isNaN(page) && page !== currentPage) { currentPage = page; fetchData(); } });
     $(document.body).on('click', '.btn-edit', function () {
         const id = $(this).data('id');
+        const preview = $('#editImagePreview'); const placeholder = $('#editPreviewPlaceholder');
         $('#editForm').attr('action', routes.update(id));
         $.get(routes.show(id), data => {
-            $('#editId').val(data.id); $('#editTitle').val(data.title);
-            $('#editIconName').val(data.icon_name); $('#editDescription').val(data.description);
+            $('#editId').val(data.id); 
+            $('#editTitle').val(data.title);
+            $('#editDescription').val(data.description);
+            
+            if (data.image_url) {
+                preview.attr('src', data.image_url).show(); 
+                preview.attr('data-original-src', data.image_url); 
+                placeholder.hide();
+            } else { 
+                preview.hide(); 
+                placeholder.show(); 
+            }
             editModal.show();
         }).fail(() => Swal.fire('Error!', 'Could not fetch item data.', 'error'));
     });

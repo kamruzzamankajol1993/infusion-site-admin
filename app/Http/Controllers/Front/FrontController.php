@@ -29,6 +29,20 @@ use Illuminate\Support\Facades\Log;
 class FrontController extends Controller
 {
 
+
+ public function webindex(Request $request){
+
+
+
+
+    return view('front.index');
+
+
+
+ }
+
+    
+
     // app/Http/Controllers/Front/FrontController.php
 
 public function ajaxTicketSearch(Request $request)

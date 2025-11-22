@@ -70,16 +70,16 @@ Edit Slider | {{ $ins_name }}
                          <hr>
                         <label for="image" class="form-label">Slider Image</label>
                         <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*">
-                        <small class="form-text text-muted">Required Size: 2560x1920 px, Max: 5MB. Leave blank to keep current image.</small>
+                        <small class="form-text text-muted">Required Size: 1920x 1080 px, Max: 5MB. Leave blank to keep current image.</small>
                         @error('image') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         {{-- Image Preview --}}
                         <div class="image-preview-box">
                              @if($slider->image)
                                 <img id="imagePreviewS" src="{{ $slider->image_url }}" alt="Current Image"> {{-- Use accessor --}}
-                                <span class="placeholder-text" style="display:none;">Image Preview<br>(2560 x 1920)</span>
+                                <span class="placeholder-text" style="display:none;">Image Preview<br>(1920x 1080)</span>
                              @else
                                 <img id="imagePreviewS" src="#" alt="Image Preview" style="display:none;">
-                                <span class="placeholder-text">Image Preview<br>(2560 x 1920)</span>
+                                <span class="placeholder-text">Image Preview<br>(1920x 1080)</span>
                              @endif
                         </div>
                     </div>

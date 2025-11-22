@@ -21,6 +21,13 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="editTitle" class="form-label">Title</label>
+                    <input type="text" id="editTitle" name="title" class="form-control @error('title', 'update') is-invalid @enderror" value="{{ old('title') }}">
+                    @error('title', 'update')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+
+                <div class="mb-3">
                     <label for="editImage" class="form-label">Image (Icon)</label>
                     <input type="file" id="editImage" name="image" class="form-control @error('image', 'update') is-invalid @enderror" accept="image/*">
                     <small id="editImageHelpText" class="form-text text-muted">Required: 60x60 px. Max: 256KB. Leave blank to keep current.</small>

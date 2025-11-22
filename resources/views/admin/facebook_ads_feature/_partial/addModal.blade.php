@@ -2,17 +2,18 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header"><h1 class="modal-title fs-5" id="addModalLabel">Add New Feature Card</h1><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-        <form id="addForm" method="post" action="{{ route('facebookAds.feature.store') }}">
+        <form id="addForm" method="post" action="{{ route('facebookAds.feature.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="addIconName" class="form-label">Icon Name <span class="text-danger">*</span></label>
-                    <input type="text" name="icon_name" id="addIconName" class="form-control" value="mdi:target-arrow" required>
-                    <small class="form-text text-muted">Find icon names from <a href="https://icon-sets.iconify.design/" target="_blank">Iconify</a> (e.g., mdi:target-arrow)</small>
-                </div>
-                <div class="mb-3">
                     <label for="addTitle" class="form-label">Title <span class="text-danger">*</span></label>
                     <input type="text" name="title" id="addTitle" class="form-control" placeholder="Enter title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="addImage" class="form-label">Image (Icon) <span class="text-danger">*</span></label>
+                    <input type="file" name="image" id="addImage" class="form-control" accept="image/*" required>
+                    <small class="form-text text-muted">Required: 80x80 px. Max: 256KB</small>
+                    <img id="addImagePreview" src="#" alt="Image Preview" class="img-thumbnail mt-2" style="display:none; width: 80px; height: 80px; object-fit: contain;">
                 </div>
                 <div class="mb-3">
                     <label for="addDescription" class="form-label">Description (Optional)</label>
@@ -24,4 +25,13 @@
       </div>
     </div>
 </div>
-<script> document.getElementById('addModal').addEventListener('hidden.bs.modal', () => document.getElementById('addForm').reset()); </script>
+<script> 
+    document.getElementById('addImage').addEventListener('change', e => { const p = document.getElementById('addImagePreview');
+        if (e.target.files[0]) { const r = new FileReader(); r.onloadend = () => { p.src = r.result; p.style.display = 'block'; }; r.readAsDataURL(e.target.files[0]); }
+        else { p.src = '#'; p.style.display = 'none'; }
+    });
+    document.getElementById('addModal').addEventListener('hidden.bs.modal', () => { 
+        document.getElementById('addForm').reset(); 
+        document.getElementById('addImagePreview').style.display = 'none';
+    }); 
+</script>

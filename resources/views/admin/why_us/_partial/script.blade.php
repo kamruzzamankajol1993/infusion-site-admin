@@ -46,6 +46,7 @@
                 rows += `<tr>
                     <td>${(res.current_page - 1) * (res.per_page || 10) + i + 1}</td>
                     <td>${imageHtml}</td>
+                    <td>${item.title || 'N/A'}</td>
                     <td>${item.name || 'N/A'}</td>
                     <td>${editBtnHtml}${deleteBtnHtml}</td>
                 </tr>`;
@@ -110,6 +111,7 @@
         $.get(routes.show(id), function (data) {
             $('#editWhyUsId').val(data.id);
             $('#editName').val(data.name);
+            $('#editTitle').val(data.title);
             
             if (data.image_url) {
                 preview.attr('src', data.image_url).show();

@@ -14,6 +14,14 @@
                     <input type="text" name="name" id="addName" class="form-control" placeholder="Enter item name" required>
                     @error('name') <div class="text-danger mt-1">{{ $message }}</div> @enderror
                 </div>
+
+                
+                
+                <div class="mb-3">
+                    <label for="addTitle" class="form-label">Title</label>
+                    <input type="text" name="title" id="addTitle" class="form-control" placeholder="Enter item title (optional)">
+                    @error('title') <div class="text-danger mt-1">{{ $message }}</div> @enderror
+                </div>
                 
                 <div class="mb-3">
                     <label for="addImage" class="form-label">Image (Icon) <span class="text-danger">*</span></label>

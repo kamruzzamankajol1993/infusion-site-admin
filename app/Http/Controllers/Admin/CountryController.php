@@ -82,7 +82,7 @@ class CountryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:countries,name',
-            'iso3' => 'required|string|size:3|unique:countries,iso3',
+            'iso3' => 'required|string|size:2|unique:countries,iso3',
             // Status is optional here as it defaults to true in migration
             // 'status' => 'boolean'
         ]);
@@ -126,7 +126,7 @@ class CountryController extends Controller
          // Use Validator::make to manually handle errors and error bags
          $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:countries,name,' . $id,
-            'iso3' => 'required|string|size:3|unique:countries,iso3,' . $id,
+            'iso3' => 'required|string|size:2|unique:countries,iso3,' . $id,
             'status' => 'required|boolean', // Status is required on update
         ]);
 
@@ -177,10 +177,7 @@ class CountryController extends Controller
         try {
             $country = Country::findOrFail($id);
 
-            // Add check here if countries are linked to projects and should prevent deletion
-            if ($country->projects()->exists()) { // Assuming a 'projects' relationship exists on the Country model
-                 return redirect()->route('country.index')->with('error', 'Cannot delete country. It is associated with existing projects.');
-            }
+           
 
             $country->delete();
 

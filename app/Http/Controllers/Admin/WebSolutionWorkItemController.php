@@ -52,7 +52,7 @@ class WebSolutionWorkItemController extends Controller
             $data['image'] = $this->handleImageUpload($request, new WebSolutionWorkItem(), 'image', 'web_solution_work', 400, 300);
             if (!$data['image']) throw new Exception("Image upload failed.");
             WebSolutionWorkItem::create($data);
-            return redirect()->route('webSolution.work-item.index')->with('success','Item created successfully!');
+            return redirect()->route('webSolution.workItem.index')->with('success','Item created successfully!');
         } catch (Exception $e) { return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]); }
     }
     public function show($id): JsonResponse {
@@ -78,7 +78,7 @@ class WebSolutionWorkItemController extends Controller
                 $data['image'] = $this->handleImageUpdate($request, $item, 'image', 'web_solution_work', 400, 300);
             }
             $item->update($data);
-            return redirect()->route('webSolution.work-item.index')->with('success', 'Item updated successfully');
+            return redirect()->route('webSolution.workItem.index')->with('success', 'Item updated successfully');
         } catch (Exception $e) {
              return redirect()->back()->withErrors(['error' => 'Failed to update item.'], 'update')->withInput()->with('error_modal_id', $id);
         }
@@ -101,9 +101,9 @@ class WebSolutionWorkItemController extends Controller
             $item->delete();
             DB::statement('SET @count = 0;');
             DB::update('UPDATE web_solution_work_items SET `order` = (@count:=@count+1) ORDER BY `order` ASC;');
-            return redirect()->route('webSolution.work-item.index')->with('success', 'Item deleted successfully.');
+            return redirect()->route('webSolution.workItem.index')->with('success', 'Item deleted successfully.');
         } catch (Exception $e) {
-            return redirect()->route('webSolution.work-item.index')->with('error', 'Failed to delete item.');
+            return redirect()->route('webSolution.workItem.index')->with('error', 'Failed to delete item.');
         }
     }
 }

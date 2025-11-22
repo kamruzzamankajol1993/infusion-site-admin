@@ -5,7 +5,7 @@
             <h1 class="modal-title fs-5" id="addModalLabel">Add New Work Category</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <form id="addForm" method="post" action="{{ route('webSolution.work-category.store') }}">
+        <form id="addForm" method="post" action="{{ route('webSolution.workCategory.store') }}">
             @csrf
             <div class="modal-body">
                 <div class="mb-3">

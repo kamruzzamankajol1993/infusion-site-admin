@@ -84,12 +84,14 @@ class WhyUsController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:why_us,name',
+            'title' => 'nullable|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:256', // Max 256KB
         ]);
 
         DB::beginTransaction();
         try {
-            $whyUsData = $request->only('name');
+            $whyUsData = $request->only('name', 'title');
+            //$whyUsData['image'] = $imagePath;
 
             // Set dimensions to 60x60
             $width = 60;
@@ -149,6 +151,7 @@ class WhyUsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:why_us,name,' . $id,
+            'title' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:256', // Max 256KB
         ]);
 
@@ -163,7 +166,7 @@ class WhyUsController extends Controller
         try {
             $whyUs = WhyUs::findOrFail($id);
             
-            $whyUsData = $request->only('name');
+            $whyUsData = $request->only('name', 'title');
 
             // Set dimensions to 60x60
             $width = 60;

@@ -47,7 +47,7 @@ class FacebookAdsPricingPackageController extends Controller
             'button_link' => 'required|string|max:255',
         ]);
         FacebookAdsPricingPackage::create($request->all());
-        return redirect()->route('facebookAds.pricing-package.index')->with('success','Package created successfully!');
+        return redirect()->route('facebookAds.pricingPackage.index')->with('success','Package created successfully!');
     }
     public function show($id): JsonResponse {
         return response()->json(FacebookAdsPricingPackage::findOrFail($id));
@@ -67,7 +67,7 @@ class FacebookAdsPricingPackageController extends Controller
             return redirect()->back()->withErrors($validator, 'update')->withInput()->with('error_modal_id', $id);
         }
         FacebookAdsPricingPackage::findOrFail($id)->update($request->all());
-        return redirect()->route('facebookAds.pricing-package.index')->with('success', 'Package updated successfully');
+        return redirect()->route('facebookAds.pricingPackage.index')->with('success', 'Package updated successfully');
     }
     public function updateOrder(Request $request): JsonResponse { 
         $request->validate(['itemIds' => 'required|array']);
@@ -80,6 +80,6 @@ class FacebookAdsPricingPackageController extends Controller
         FacebookAdsPricingPackage::findOrFail($id)->delete();
         DB::statement('SET @count = 0;');
         DB::update('UPDATE facebook_ads_pricing_packages SET `order` = (@count:=@count+1) ORDER BY `order` ASC;');
-        return redirect()->route('facebookAds.pricing-package.index')->with('success', 'Package deleted successfully.');
+        return redirect()->route('facebookAds.pricingPackage.index')->with('success', 'Package deleted successfully.');
     }
 }

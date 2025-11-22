@@ -7,7 +7,7 @@ class FacebookMoreService extends Model
 {
     use HasFactory;
     protected $table = 'facebook_more_services';
-    protected $fillable = ['icon_name', 'title', 'description', 'link_text', 'link_url', 'order'];
+    protected $fillable = ['image', 'title', 'description', 'link_text', 'link_url', 'order'];
 
     protected static function boot(): void
     {

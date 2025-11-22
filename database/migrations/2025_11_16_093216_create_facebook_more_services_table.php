@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('facebook_more_services', function (Blueprint $table) {
             $table->id();
-            $table->string('icon_name'); // e.g., mdi:monitor-dashboard
+            $table->string('image'); // e.g., mdi:monitor-dashboard
             $table->string('title');
             $table->text('description');
             $table->string('link_text')->default('Buy Now &rarr;');

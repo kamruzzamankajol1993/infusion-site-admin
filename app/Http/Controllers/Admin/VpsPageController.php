@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Log;
 class VpsPageController extends Controller
 {
     use ImageUploadTrait;
+    
     public function __construct() {
-         $this->middleware('permission:vpsPageView', ['only' => ['index', 'storeOrUpdate']]); // Create this permission
+         $this->middleware('permission:vpsPageView', ['only' => ['index', 'storeOrUpdate']]); 
     }
 
     public function index(): View {
@@ -42,10 +43,19 @@ class VpsPageController extends Controller
 
         DB::beginTransaction();
         try {
-            $content = VpsPage::firstOrCreate([]);
+            // 1. FIX: Use firstOrNew instead of firstOrCreate
+            $content = VpsPage::firstOrNew([]);
+            
             $data = $validatedData;
+            
+            // 2. Handle Image
+            // We pass the $content object (even if new) to the trait.
             $data['hero_image'] = $this->handleImageUpdate($request, $content, 'hero_image', 'vps_page', 500, 400);
-            $content->update($data);
+            
+            // 3. Fill and Save manually
+            $content->fill($data);
+            $content->save();
+            
             DB::commit();
             Log::info('VPS Page content updated successfully.');
             return redirect()->route('vpsPage.page.index')->with('success', 'Content updated successfully.');

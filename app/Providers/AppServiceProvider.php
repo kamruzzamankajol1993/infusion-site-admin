@@ -11,6 +11,9 @@ use stdClass; // Used for default object
 use Illuminate\Support\Facades\View; // 1. Import View facade
 use Illuminate\Support\Facades\Schema; // 2. Import Schema facade
 use App\Models\EngageSection;
+use App\Models\TopHeaderLink;
+use App\Models\SocialLink;
+use App\Models\Category;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -42,16 +45,37 @@ class AppServiceProvider extends ServiceProvider
             return SystemInformation::first();
         });
 
+        // Fetch Social Links (Cached for 60 mins)
+        $socialLinks = Cache::remember('social_links', 3600, function () {
+            return SocialLink::all(); // Returns a collection
+        });
+
+        // --- NEW: Fetch Categories for Header ---
+        $categories = Cache::remember('header_categories', 3600, function () {
+            return Category::where('status', 1)
+                ->whereNull('parent_id') // Fetch only top-level categories
+                ->orderBy('name', 'asc')
+                ->get();
+        });
+
         // Create an empty object if no settings are found to prevent errors
         if (!$settings) {
             $settings = new stdClass();
         }
-
+$topLink =  TopHeaderLink::where('id',1)->value('title');
         // --- Share variables for all views ---
         // This single block replaces all the old frontend/backend/auth logic.
         // We provide defaults for every field to avoid "undefined property" errors.
 
+        // Share variables with ALL views
+        View::share([
+          
+            'socialLinks' => $socialLinks,
+            'categories' => $categories,
+        ]);
+
         // Main variables (used in backend)
+        view()->share('topLink', $topLink ?? '');
         view()->share('ins_name', $settings->ins_name ?? 'Default Site Name');
         view()->share('logo', $settings->logo ?? '');
         view()->share('icon', $settings->icon ?? '');

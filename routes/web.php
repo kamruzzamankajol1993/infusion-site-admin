@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 // --- Controller Imports ---
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Front\TextController;
+use App\Http\Controllers\Front\FrontController;
 use App\Http\Controllers\Front\AuthController;
 use App\Http\Controllers\Front\CustomerPersonalController;
 
@@ -130,7 +131,7 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 // Admin Login
 Route::controller(LoginController::class)->group(function () {
-    Route::get('/', 'viewLoginPage')->name('viewLoginPage');
+    Route::get('/web-admin-login', 'viewLoginPage')->name('viewLoginPage');
     Route::get('/password/reset', 'showLinkRequestForm')->name('showLinkRequestForm');
     Route::post('/password/reset/submit', 'reset')->name('reset');
 });
@@ -157,12 +158,30 @@ Route::post('/payment/cancel', [FrontController::class, 'paymentCancel'])->name(
 Route::post('/textMessageAll', [TextController::class, 'textMessage'])->name('text.index');
 
 
+// route for  front-end 
+
+Route::controller(FrontController::class)->group(function () {
+
+    Route::get('/', 'webindex')->name('front.index');
+
+    });
+
+
+// route for front-end
+
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Frontend (Customer) Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+
+
+    /////protected route for front-end strart
+
+
+    ///protected route for front-end  end
 Route::get('ajax/products', [App\Http\Controllers\Admin\ProductController::class, 'data'])->name('ajax.product.data');
     Route::post('products/update-order', [App\Http\Controllers\Admin\ProductController::class, 'updateOrder'])->name('product.updateOrder');
     Route::resource('product', App\Http\Controllers\Admin\ProductController::class);
@@ -459,15 +478,9 @@ Route::get('ajax-coupons', [App\Http\Controllers\Admin\CouponController::class, 
     Route::delete('review-images/{image}', [ReviewController::class, 'destroyImage'])->name('review.image.destroy');
     Route::resource('review', ReviewController::class);
     
-    Route::resource('customer', CustomerController::class);
-    Route::get('ajax-customers', [CustomerController::class, 'data'])->name('ajax.customer.data');
-    Route::controller(CustomerController::class)->group(function () {
-        Route::get('/customers/export','exportCustomers')->name('customer.export');
-        Route::get('/customers/check-email','checkEmailUniqueness')->name('customers.checkEmail');
-        Route::get('/downloadcustomerPdf','downloadcustomerPdf')->name('downloadcustomerPdf');
-        Route::get('/downloadcustomerExcel','downloadcustomerExcel')->name('downloadcustomerExcel');
-        Route::get('/ajax-table-customer/data','data')->name('ajax.customertable.data');
-    });
+  // Customer Routes
+    Route::get('ajax-customers', [App\Http\Controllers\Admin\CustomerController::class, 'data'])->name('ajax.customer.data');
+    Route::resource('customer', App\Http\Controllers\Admin\CustomerController::class);
 
     Route::resource('coupon', CouponController::class);
     Route::get('ajax-coupons', [CouponController::class, 'data'])->name('ajax.coupons.data');

@@ -42,11 +42,11 @@ class TopHeaderLinkController extends Controller
         $request->validate([
             // Rules for Link 1
             'link1_title' => 'required|string|max:255',
-            'link1_link'  => 'required|url|max:255',
+            'link1_link'  => 'nullable|url|max:255',
             
             // Rules for Link 2
-            'link2_title' => 'required|string|max:255',
-            'link2_link'  => 'required|url|max:255',
+            'link2_title' => 'nullable|string|max:255',
+            'link2_link'  => 'nullable|url|max:255',
         ]);
 
         try {

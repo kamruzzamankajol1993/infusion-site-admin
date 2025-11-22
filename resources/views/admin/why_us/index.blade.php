@@ -50,7 +50,8 @@ Why Us | {{ $ins_name }}
                         <tr>
                             <th style="width: 5%;">Sl</th>
                             <th style="width: 20%;">Image</th>
-                            <th class="sortable" data-column="name" style="width: 60%;">Name</th>
+                            <th class="sortable" data-column="title" style="width: 20%;">Title</th>
+                            <th class="sortable" data-column="name" style="width: 40%;">Name</th>
                             <th style="width: 15%;">Action</th>
                         </tr>
                     </thead>

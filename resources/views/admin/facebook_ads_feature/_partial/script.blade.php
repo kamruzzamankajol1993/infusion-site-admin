@@ -9,7 +9,8 @@
         update: id => `{{ route('facebookAds.feature.update', ':id') }}`.replace(':id', id),
         delete: id => `{{ route('facebookAds.feature.destroy', ':id') }}`.replace(':id', id),
         updateOrder: "{{ route('facebookAds.feature.updateOrder') }}",
-        token: "{{ csrf_token() }}"
+        token: "{{ csrf_token() }}",
+        assetBase: "{{ asset('') }}"
     };
     function fetchData() {
         $.get(routes.fetch, { page: currentPage, search: searchTerm, sort: sortColumn, direction: sortDirection }, res => {
@@ -21,11 +22,12 @@
             }
             items.forEach((item, i) => {
                 let sl = (res.current_page - 1) * res.per_page + i + 1;
+                let img = item.image ? `<img src="${routes.assetBase}${item.image}" alt="${item.title}" style="width: 50px; height: 50px; object-fit: contain;">` : ``;
                 let editBtn = canUpdate ? `<button class="btn btn-sm btn-info btn-edit btn-custom-sm" data-id="${item.id}" title="Edit"><i class="fa fa-edit"></i></button> ` : '';
                 let delBtn = canDelete ? `<button class="btn btn-sm btn-danger btn-delete btn-custom-sm" data-id="${item.id}" title="Delete"><i class="fa fa-trash"></i></button>` : '';
                 rows += `<tr>
                     <td>${sl}</td>
-                    <td>${item.icon_name || 'N/A'}</td>
+                    <td>${img}</td>
                     <td>${item.title || 'N/A'}</td>
                     <td>${item.description || 'N/A'}</td>
                     <td>${item.order}</td> 
@@ -57,12 +59,22 @@
     $(document).on('click', '.page-link', function (e) { e.preventDefault(); const page = parseInt($(this).data('page')); if (!isNaN(page) && page !== currentPage) { currentPage = page; fetchData(); } });
     $(document.body).on('click', '.btn-edit', function () {
         const id = $(this).data('id');
+        const preview = $('#editIconPreview'); const placeholder = $('#editPreviewPlaceholder');
         $('#editForm').attr('action', routes.update(id));
         $.get(routes.show(id), data => {
             $('#editId').val(data.id); 
             $('#editTitle').val(data.title);
-            $('#editIconName').val(data.icon_name);
             $('#editDescription').val(data.description);
+            if (data.image) {
+                // Append the full URL if not already in data, using the asset base route
+                let imageUrl = data.image_url ? data.image_url : routes.assetBase + data.image;
+                $('#editImagePreview').attr('src', imageUrl).show();
+                $('#editImagePreview').attr('data-original-src', imageUrl); 
+                placeholder.hide();
+            } else { 
+                $('#editImagePreview').hide(); 
+                placeholder.show(); 
+            }
             editModal.show();
         }).fail(() => Swal.fire('Error!', 'Could not fetch feature data.', 'error'));
     });

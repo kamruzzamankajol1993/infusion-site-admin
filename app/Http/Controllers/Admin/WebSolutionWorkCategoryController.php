@@ -37,12 +37,17 @@ class WebSolutionWorkCategoryController extends Controller
             return response()->json($paginated);
         } catch (Exception $e) { return response()->json(['error' => 'Failed to retrieve data.'], 500); }
     }
-    public function store(Request $request): RedirectResponse {
+    public function store(Request $request): RedirectResponse 
+    {
         $request->validate(['name' => 'required|string|max:255|unique:web_solution_work_categories,name']);
         try {
             WebSolutionWorkCategory::create(['name' => $request->name]);
-            return redirect()->route('webSolution.work-category.index')->with('success','Category created successfully!');
-        } catch (Exception $e) { return redirect()->back()->withInput()->withErrors(['error' => "Failed to create category."]); }
+            return redirect()->route('webSolution.workCategory.index')->with('success','Category created successfully!');
+        } catch (Exception $e) { 
+            
+            return redirect()->back()->withInput()->withErrors(['error' => "Failed to create category."]); 
+        
+        }
     }
     public function show($id): JsonResponse {
         try {
@@ -56,7 +61,7 @@ class WebSolutionWorkCategoryController extends Controller
         }
         try {
             WebSolutionWorkCategory::findOrFail($id)->update(['name' => $request->name]);
-            return redirect()->route('webSolution.work-category.index')->with('success', 'Category updated successfully');
+            return redirect()->route('webSolution.workCategory.index')->with('success', 'Category updated successfully');
         } catch (Exception $e) {
              return redirect()->back()->withErrors(['error' => 'Failed to update category.'], 'update')->withInput()->with('error_modal_id', $id);
         }
@@ -78,9 +83,9 @@ class WebSolutionWorkCategoryController extends Controller
             WebSolutionWorkCategory::findOrFail($id)->delete();
             DB::statement('SET @count = 0;');
             DB::update('UPDATE web_solution_work_categories SET `order` = (@count:=@count+1) ORDER BY `order` ASC;');
-            return redirect()->route('webSolution.work-category.index')->with('success', 'Category deleted successfully.');
+            return redirect()->route('webSolution.workCategory.index')->with('success', 'Category deleted successfully.');
         } catch (Exception $e) {
-            return redirect()->route('webSolution.work-category.index')->with('error', 'Failed to delete category.');
+            return redirect()->route('webSolution.workCategory.index')->with('error', 'Failed to delete category.');
         }
     }
 }

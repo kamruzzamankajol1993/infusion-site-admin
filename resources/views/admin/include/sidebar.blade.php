@@ -334,13 +334,17 @@
         @if ($usr->can('orderView') || $usr->can('productView') || $usr->can('categoryView') || $usr->can('reviewView') || $usr->can('storeMainBannerView'))
         <div class="sidebar-title px-3 pt-3">Ecommerce & Store</div>
         <a href="#ecommerce-collapse" data-bs-toggle="collapse" class="list-group-item list-group-item-action bg-transparent d-flex justify-content-between align-items-center 
-           {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*']) ? 'active' : '' }}">
+           {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*','customer.*']) ? 'active' : '' }}">
             <div><i class="bi bi-cart3 me-3"></i>Store Management</div>
             <i class="bi bi-chevron-down"></i>
         </a>
-        <div id="ecommerce-collapse" class="collapse {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
+        <div id="ecommerce-collapse" class="collapse {{ Route::is(['order.*', 'product.*', 'category.*', 'review.*', 'coupon.*', 'storeMainBanner.*', 'storeSideBanner.*','customer.*']) ? 'show' : '' }}" data-bs-parent="#sidebar-accordion">
             <div class="list-group list-group-flush sidebar-submenu">
-                
+                @if ($usr->can('customerView'))
+                <a href="{{ route('customer.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('customer.*') ? 'active' : '' }}">
+                    Customers
+                </a>
+                @endif
                 @if ($usr->can('orderView'))
                 <a href="{{ route('order.index') }}" class="list-group-item list-group-item-action bg-transparent {{ Route::is('order.*') ? 'active' : '' }}">
                     Orders
@@ -434,13 +438,13 @@
                  @endif
                  @can('headerLinkView')
 
-                  <a href="{{ route('topHeaderLink.index') }}" class="{{ Route::is('topHeaderLink.*') ? 'active' : '' }} list-group-item list-group-item-action bg-transparent">
+                   <a href="{{ route('topHeaderLink.index') }}" class="{{ Route::is('topHeaderLink.*') ? 'active' : '' }} list-group-item list-group-item-action bg-transparent">
                      Top Header Links
                  </a>
 
-                 <a href="{{ route('navbarSetting.index') }}" class="{{ Route::is('navbarSetting.*') ? 'active' : '' }} list-group-item list-group-item-action bg-transparent">
+                 {{--<a href="{{ route('navbarSetting.index') }}" class="{{ Route::is('navbarSetting.*') ? 'active' : '' }} list-group-item list-group-item-action bg-transparent">
                      Navbar Setting
-                 </a>
+                 </a> --}}
 
    
 @endcan

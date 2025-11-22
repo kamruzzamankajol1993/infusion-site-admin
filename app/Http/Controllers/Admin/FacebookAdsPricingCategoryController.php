@@ -33,7 +33,7 @@ class FacebookAdsPricingCategoryController extends Controller
     public function store(Request $request): RedirectResponse {
         $request->validate(['name' => 'required|string|max:255|unique:facebook_ads_pricing_categories,name']);
         FacebookAdsPricingCategory::create(['name' => $request->name]);
-        return redirect()->route('facebookAds.pricing-category.index')->with('success','Category created successfully!');
+        return redirect()->route('facebookAds.pricingCategory.index')->with('success','Category created successfully!');
     }
     public function show($id): JsonResponse {
         return response()->json(FacebookAdsPricingCategory::findOrFail($id));
@@ -44,7 +44,7 @@ class FacebookAdsPricingCategoryController extends Controller
             return redirect()->back()->withErrors($validator, 'update')->withInput()->with('error_modal_id', $id);
         }
         FacebookAdsPricingCategory::findOrFail($id)->update(['name' => $request->name]);
-        return redirect()->route('facebookAds.pricing-category.index')->with('success', 'Category updated successfully');
+        return redirect()->route('facebookAds.pricingCategory.index')->with('success', 'Category updated successfully');
     }
     public function updateOrder(Request $request): JsonResponse { 
         $request->validate(['itemIds' => 'required|array']);
@@ -58,6 +58,6 @@ class FacebookAdsPricingCategoryController extends Controller
         FacebookAdsPricingCategory::findOrFail($id)->delete();
         DB::statement('SET @count = 0;');
         DB::update('UPDATE facebook_ads_pricing_categories SET `order` = (@count:=@count+1) ORDER BY `order` ASC;');
-        return redirect()->route('facebookAds.pricing-category.index')->with('success', 'Category deleted successfully.');
+        return redirect()->route('facebookAds.pricingCategory.index')->with('success', 'Category deleted successfully.');
     }
 }

@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header"><h1 class="modal-title fs-5" id="addModalLabel">Add New Pricing Category</h1><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-        <form id="addForm" method="post" action="{{ route('facebookAds.pricing-category.store') }}">
+        <form id="addForm" method="post" action="{{ route('facebookAds.pricingCategory.store') }}">
             @csrf
             <div class="modal-body">
                 <div class="mb-3">

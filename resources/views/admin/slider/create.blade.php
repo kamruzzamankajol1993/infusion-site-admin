@@ -74,13 +74,13 @@ Add New Slider | {{ $ins_name }}
                          <hr>
                         <label for="image" class="form-label">Slider Image <span class="text-danger">*</span></label>
                         <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*" required>
-                        <small class="form-text text-muted">Required Size: 2560px (Width) x 1920px (Height), Max: 5MB</small>
+                        <small class="form-text text-muted">Required Size: 1920px (Width) x 1080px (Height), Max: 5MB</small>
                         @error('image') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                         {{-- Image Preview --}}
                         <div class="image-preview-box">
     {{-- Add style="display:none;" to hide the broken image icon on load --}}
     <img id="imagePreviewS" src="#" alt="Image Preview" style="display:none;"> 
-    <span class="placeholder-text">Image Preview<br>(2560 x 1920)</span>
+    <span class="placeholder-text">Image Preview<br>(1920x 1080)</span>
 </div>
                     </div>
                 </div>
